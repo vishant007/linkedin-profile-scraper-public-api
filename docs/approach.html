@@ -1,0 +1,367 @@
+<meta charset="utf-8">
+<title>Approach — LinkedIn Profile API</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap">
+
+<style>
+:root{
+  --paper:#FFFFFF; --bg:#F4F6F8; --sunken:#EDF1F4;
+  --ink:#12181F; --ink-2:#3D4A57; --ink-3:#6E7E8C;
+  --line:#D6DDE3; --line-2:#BAC5CE;
+  --accent:#A85D0C; --accent-soft:#F7E8D6;
+  --upstream:#0C6570; --upstream-soft:#DAEDEF;
+  --danger:#9C2A20;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --ui:"Archivo",system-ui,-apple-system,Segoe UI,sans-serif;
+  --prose:"Newsreader",Georgia,"Times New Roman",serif;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#161D25; --bg:#0D1117; --sunken:#111820;
+    --ink:#DCE3EA; --ink-2:#A2B1BE; --ink-3:#788894;
+    --line:#293440; --line-2:#3A4753;
+    --accent:#EFA84A; --accent-soft:#382A16;
+    --upstream:#44B8C3; --upstream-soft:#112F36;
+    --danger:#F07A6F;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#161D25; --bg:#0D1117; --sunken:#111820;
+  --ink:#DCE3EA; --ink-2:#A2B1BE; --ink-3:#788894;
+  --line:#293440; --line-2:#3A4753;
+  --accent:#EFA84A; --accent-soft:#382A16;
+  --upstream:#44B8C3; --upstream-soft:#112F36;
+  --danger:#F07A6F;
+}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--prose);font-size:17px;line-height:1.62}
+.page{max-width:820px;margin:0 auto;background:var(--paper);padding:56px 62px 76px}
+
+/* masthead */
+.doc-head{border-bottom:2px solid var(--ink);padding-bottom:22px;margin-bottom:34px}
+.kicker{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);font-weight:700;margin:0 0 12px}
+h1{font-family:var(--ui);font-size:38px;font-weight:700;letter-spacing:-.028em;line-height:1.1;margin:0 0 10px;text-wrap:balance}
+.sub{margin:0;color:var(--ink-2);font-size:18px;max-width:62ch}
+.meta{display:flex;gap:26px;flex-wrap:wrap;margin-top:20px;font-family:var(--mono);font-size:11px;color:var(--ink-3);letter-spacing:.04em}
+.meta b{color:var(--ink-2);font-weight:700}
+
+/* structure */
+h2{
+  font-family:var(--ui);font-size:22px;font-weight:600;letter-spacing:-.018em;
+  margin:42px 0 4px;padding-top:20px;border-top:1px solid var(--line);
+  break-after:avoid;page-break-after:avoid;text-wrap:balance
+}
+h2 .num{font-family:var(--mono);font-size:12px;color:var(--accent);font-weight:700;display:block;margin-bottom:7px;letter-spacing:.1em}
+h3{font-family:var(--ui);font-size:15.5px;font-weight:600;margin:26px 0 6px;color:var(--ink);break-after:avoid;page-break-after:avoid}
+p{margin:0 0 14px;max-width:68ch}
+ul,ol{margin:0 0 14px;padding-left:22px;max-width:66ch}
+li{margin-bottom:7px}
+strong{font-weight:600}
+em{font-style:italic}
+
+code{font-family:var(--mono);font-size:13.5px;background:var(--sunken);padding:1px 4px;border-radius:2px;color:var(--accent);word-break:break-word}
+pre{
+  font-family:var(--mono);font-size:12px;line-height:1.6;background:var(--sunken);
+  border:1px solid var(--line);border-left:2px solid var(--accent);border-radius:2px;
+  padding:14px 16px;overflow-x:auto;margin:0 0 16px;color:var(--ink-2);
+  break-inside:avoid;page-break-inside:avoid
+}
+pre b{color:var(--upstream);font-weight:500}
+pre i{color:var(--ink-3);font-style:italic}
+
+table{width:100%;border-collapse:collapse;margin:0 0 18px;font-family:var(--ui);font-size:13.5px;break-inside:avoid;page-break-inside:avoid}
+th{text-align:left;padding:8px 10px;border-bottom:1.5px solid var(--line-2);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);font-weight:700}
+td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2)}
+td:first-child{color:var(--ink);font-weight:500}
+td code,th code{font-size:12px}
+
+.callout{
+  border:1px solid var(--line);border-left:3px solid var(--accent);background:var(--sunken);
+  padding:15px 18px;margin:0 0 18px;border-radius:2px;break-inside:avoid;page-break-inside:avoid
+}
+.callout.warn{border-left-color:var(--danger)}
+.callout h4{
+  font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;
+  font-weight:700;color:var(--ink-3);margin:0 0 7px
+}
+.callout p:last-child{margin-bottom:0}
+
+figure{margin:0 0 20px;break-inside:avoid;page-break-inside:avoid}
+figure svg{width:100%;height:auto;display:block;border:1px solid var(--line);border-radius:2px;background:var(--sunken)}
+figcaption{font-family:var(--ui);font-size:12px;color:var(--ink-3);margin-top:8px;text-align:center}
+svg text{font-family:var(--mono);font-size:9px;fill:var(--ink-2)}
+svg text.l{font-family:var(--ui);font-size:10.5px;font-weight:600;fill:var(--ink)}
+svg text.s{font-size:7.5px;fill:var(--ink-3)}
+svg rect.b{fill:var(--paper);stroke:var(--line-2)}
+
+.foot{margin-top:44px;padding-top:18px;border-top:1px solid var(--line);font-family:var(--ui);font-size:12.5px;color:var(--ink-3)}
+.foot a{color:var(--upstream)}
+
+@media print{
+  :root{
+    --paper:#FFFFFF; --bg:#FFFFFF; --sunken:#F4F6F8;
+    --ink:#12181F; --ink-2:#3D4A57; --ink-3:#6E7E8C;
+    --line:#D6DDE3; --line-2:#BAC5CE;
+    --accent:#A85D0C; --accent-soft:#F7E8D6;
+    --upstream:#0C6570; --danger:#9C2A20;
+  }
+  @page{margin:16mm 15mm}
+  body{background:#fff;font-size:10.5pt;line-height:1.5}
+  .page{max-width:none;padding:0;background:#fff}
+  h1{font-size:26pt} h2{font-size:15pt;margin-top:26px;padding-top:14px} h3{font-size:11.5pt}
+  pre{font-size:8pt} table{font-size:9pt} code{font-size:9pt}
+  .doc-head{margin-bottom:22px}
+}
+</style>
+
+<div class="page">
+
+<header class="doc-head">
+  <p class="kicker">Engineering Challenge · Technical Approach</p>
+  <h1>Reverse Engineering the LinkedIn Profile API</h1>
+  <p class="sub">How an undocumented internal API was located, how its authentication and response format work, and how that becomes a clean hosted API of our own.</p>
+  <div class="meta">
+    <span><b>Author</b> &nbsp;Vishant Shah</span>
+    <span><b>Date</b> &nbsp;27 August 2026</span>
+    <span><b>Deadline</b> &nbsp;31 August 2026</span>
+    <span><b>Status</b> &nbsp;Design complete, build in progress</span>
+  </div>
+</header>
+
+<h2><span class="num">01</span>The challenge</h2>
+
+<p>Build a publicly hosted API that accepts a LinkedIn profile URL and returns the information on that profile as structured JSON, obtained by reverse engineering LinkedIn's own APIs. The response schema is ours to design.</p>
+
+<p>The framing matters. This is not a request to scrape a web page — it explicitly asks for LinkedIn's <em>APIs</em> to be reverse engineered. Those two things produce very different systems, and the distinction shapes every decision below.</p>
+
+<h2><span class="num">02</span>How a LinkedIn profile page actually works</h2>
+
+<p>Loading <code>linkedin.com/in/&lt;slug&gt;</code> does not deliver a finished page. The browser receives a largely empty shell, and the JavaScript inside it then issues its own background requests to LinkedIn asking for the profile data. Those requests return clean, typed JSON, which the JavaScript paints into HTML.</p>
+
+<p>The structured data therefore already exists upstream of anything visible. The requests go to paths beginning <code>/voyager/api/</code> — <strong>Voyager</strong> being LinkedIn's internal name for the private API its own front end talks to. It is undocumented, unsupported, and not intended for outside use. Its existence is known only because its traffic is observable.</p>
+
+<div class="callout">
+  <h4>Two things are called "the LinkedIn API"</h4>
+  <p>LinkedIn's <strong>official Developer API</strong> is fully documented, partner-gated and OAuth-authenticated — and it cannot return an arbitrary person's profile at all, only the authenticated user's own or those of people who explicitly authorise the calling application. It cannot satisfy this brief under any configuration.</p>
+  <p><strong>Voyager</strong> is the internal surface. Discovering it, working out its authentication, and decoding its response grammar <em>is</em> the reverse engineering the challenge asks for.</p>
+</div>
+
+<h2><span class="num">03</span>Discovery method</h2>
+
+<p>No documentation exists, so the endpoints were found by observation: open a profile in a logged-in browser, open the network inspector, filter for <code>/voyager/</code>, and read what the page requests of its own accord.</p>
+
+<p>One page load produced six such calls. Most are noise — presence polling, notification badge counts, telemetry beacons. One carries the profile. Separating signal from noise is most of the discovery work; the request itself is a single line.</p>
+
+<h2><span class="num">04</span>What was verified</h2>
+
+<p>The following call was executed against a real logged-in session and returned <strong>HTTP 200 with 12,417 bytes of JSON</strong>:</p>
+
+<pre>GET /voyager/api/identity/dash/profiles
+      ?q=memberIdentity
+      &amp;memberIdentity=&lt;publicIdentifier&gt;
+      &amp;decorationId=com.linkedin.voyager.dash.deco.identity.profile.WebTopCardCore-6
+
+<b>csrf-token</b>: ajax:&lt;JSESSIONID value&gt;
+<b>accept</b>: application/vnd.linkedin.normalized+json+2.1
+<b>x-restli-protocol-version</b>: 2.0.0
+<b>cookie</b>: li_at=&lt;session&gt;; JSESSIONID=&lt;...&gt;</pre>
+
+<p>Each header buys exactly one behaviour, established by removing them individually:</p>
+
+<table>
+  <thead><tr><th>Header</th><th>Removed</th><th>What it does</th></tr></thead>
+  <tbody>
+    <tr><td><code>cookie</code></td><td>302 → /login</td><td>Carries the session. Without it you are anonymous.</td></tr>
+    <tr><td><code>csrf-token</code></td><td>403</td><td>Echo of the <code>JSESSIONID</code> value, proving the request came from a real LinkedIn page.</td></tr>
+    <tr><td><code>accept</code></td><td>200, wrong shape</td><td>Requests the <em>flattened</em> representation. This single header creates the response format everything else depends on.</td></tr>
+    <tr><td><code>x-restli-…</code></td><td>400</td><td>Selects Rest.li 2.0 encoding for URNs and list parameters.</td></tr>
+  </tbody>
+</table>
+
+<h3>Two surfaces run in parallel</h3>
+
+<p>Alongside the REST endpoints above, LinkedIn now serves a GraphQL surface at <code>/voyager/api/graphql</code>. It uses <strong>persisted queries</strong>: the client may not send query text, only a name and a hash of a query the server already stores, as <code>queryId=voyagerPremiumDashFeatureAccess.c87b20da…</code>. Valid hashes cannot be invented — they must be harvested from observed traffic, and LinkedIn rotates them. Its parameters also use Rest.li's own URL encoding, <code>variables=(a:b,c:List(x,y))</code>, which is not JSON.</p>
+
+<p>The REST surface is therefore the primary source and GraphQL the fallback: it avoids the rotating-hash problem entirely, and it is the one confirmed working.</p>
+
+<h2><span class="num">05</span>The response format is the real problem</h2>
+
+<p>Voyager speaks Rest.li, LinkedIn's own RPC framework, and its responses are not nested documents. They are a flat array of loose objects that reference one another by URN — LinkedIn's namespaced identifier format.</p>
+
+<pre>{
+  "data": { "*elements": [ "urn:li:fsd_profile:ACoAADF3cUc…" ] },   <i>// a pointer, not a person</i>
+  "included": [
+    { "$type": "…identity.profile.Profile",
+      "firstName": "…", "lastName": "…", "headline": "…",
+      "*experienceCard": "urn:li:fsd_profileCard:(ACoAA…,EXPERIENCE)",   <i>// an address</i>
+      "*educationCard":  "urn:li:fsd_profileCard:(ACoAA…,EDUCATION)" },
+    { "$type": "…profile.Card", "entityUrn": "urn:li:fsd_profileCard:(…,EXPERIENCE)", … },
+    <i>// six more, all siblings</i>
+  ]
+}</pre>
+
+<p>The governing rule: <strong>a field name beginning <code>*</code> holds an address, not a value.</strong> A person's jobs are not inside the person; they are a URN that must be resolved against <code>included[]</code>.</p>
+
+<p>Producing one clean profile therefore requires building a URN-to-object index, walking every pointer, and reassembling the graph into a nested document. <strong>That reconstruction — not the HTTP call — is the substantive engineering of this project.</strong> A further lever, <code>decorationId</code>, selects which slice of the graph the server returns at all; mapping useful decoration IDs to the sections the brief requires is the remaining discovery work.</p>
+
+<h2><span class="num">06</span>Choosing the transport</h2>
+
+<p>The obvious question is whether a headless browser is needed. It is not, and the reasoning is worth stating because it inverts the common assumption.</p>
+
+<p>Headless browsers exist to execute JavaScript and build a page. Voyager returns JSON. <strong>There is no page to render</strong>, so on its only real strength a browser contributes nothing here. What it would contribute is request realism — and there is a far smaller tool for that.</p>
+
+<p>Bot detection begins at the <strong>TLS handshake</strong>, before any header is parsed. The cipher suites a client offers, their order and the extension set form a recognisable pattern, hashed into a <strong>JA3 fingerprint</strong>. A default Python HTTP client produces a JA3 that identifies it as Python, and no amount of setting a browser <code>User-Agent</code> conceals that.</p>
+
+<p><code>curl_cffi</code> resolves this directly. It is a Python binding over a patched libcurl that reproduces a real browser's TLS and HTTP/2 handshake:</p>
+
+<pre>from curl_cffi import requests
+r = requests.get(url, headers=HEADERS, impersonate=<b>"chrome"</b>)</pre>
+
+<table>
+  <thead><tr><th></th><th>Headless browser</th><th>curl_cffi</th></tr></thead>
+  <tbody>
+    <tr><td>Memory</td><td>~1 GB resident</td><td>~50 MB</td></tr>
+    <tr><td>Cold start</td><td>Seconds</td><td>Instant</td></tr>
+    <tr><td>Hosting</td><td>Docker host with real memory</td><td>Any small instance</td></tr>
+    <tr><td>Extra code</td><td>Session lifecycle, crash recovery</td><td>None</td></tr>
+    <tr><td>Detection surface</td><td>TLS <em>and</em> <code>navigator.webdriver</code>, GPU stack, client hints</td><td>TLS and HTTP/2 only, matched to Chrome</td></tr>
+  </tbody>
+</table>
+
+<p>A browser appears in this project exactly once, and never in production: a local one-off step to log in and capture the session cookie. Even that is optional, since the value can be copied from the browser's own developer tools by hand.</p>
+
+<h3>How this compares to the reference example</h3>
+
+<p>The brief cites PhantomBuster's LinkedIn Profile Scraper. Its own public API discloses its inputs: a profile URL, the user's <code>li_at</code> cookie, and the user's <strong>User-Agent string</strong>. Requiring the third is informative — a real browser supplies its own, so asking the user for it indicates requests are being constructed by hand and replayed server-side. Their product page also states the scraper does not return profile pictures, full work history, skills or endorsements, which are split into a separate product. This brief asks for all of them from one endpoint.</p>
+
+<h2><span class="num">07</span>API design</h2>
+
+<p>The schema being ours to design is an opportunity rather than a blank. Tross publishes documented operations across ten integrations, and they follow one rigid house style. Matching it deliberately demonstrates that their platform was read as carefully as LinkedIn's.</p>
+
+<h3>Conventions adopted from Tross's own documentation</h3>
+
+<table>
+  <thead><tr><th>Convention</th><th>Evidence in their docs</th></tr></thead>
+  <tbody>
+    <tr><td>POST for every operation, reads included</td><td><code>fetch-patient-info</code>, <code>fetch-claims</code>, <code>fetch-appointments</code> are all POST</td></tr>
+    <tr><td><code>/api/integrations/{vendor}/{verb-noun}</code></td><td>kebab-case, verb first, no version segment anywhere</td></tr>
+    <tr><td><code>X-API-Key</code> header</td><td>Identical across every operation</td></tr>
+    <tr><td><code>{ "input": {…}, "auth_id": "&lt;uuid&gt;" }</code></td><td>Identical across every operation</td></tr>
+    <tr><td>Response keyed by one domain noun, no generic envelope</td><td><code>{patient…}</code>, <code>{claims:[…]}</code>, <code>{encounters:[…]}</code></td></tr>
+    <tr><td><code>warnings: []</code> on writes</td><td><code>create-telephonic-encounter</code> returns <code>{encounterId, created, warnings}</code></td></tr>
+    <tr><td>camelCase responses, ISO dates, amounts as strings</td><td><code>encounterId</code>, <code>encDate</code>, <code>billedAmt</code></td></tr>
+  </tbody>
+</table>
+
+<p>Their <code>auth_id</code> is the most instructive detail: credentials for each upstream portal are stored server-side and referenced by opaque handle, never passed per request. Adopting it satisfies the brief's requirement to keep secrets out of the repository as a structural property rather than a convention.</p>
+
+<div class="callout">
+  <h4>On <code>auth_id</code>, and why credential provisioning stays off the API</h4>
+  <p>Every Tross operation requires an <code>auth_id</code> documented only as <em>"Auth id"</em>. Their documentation carries no authentication page, no getting-started guide, and — decisively — <strong>no endpoint anywhere that accepts a credential</strong>. Provisioning happens entirely outside the documented API; their marketing site directs prospects to book a demo.</p>
+  <p>That is a security property rather than an omission: an API with no endpoint that accepts credentials has no endpoint that can leak them or be abused to harvest them. This API takes the same posture. <code>auth_id</code> is an opaque handle resolved server-side, and no route accepts a LinkedIn credential.</p>
+  <p>Here it resolves to a single operator-held session supplied through the environment, which is precisely what the brief specifies — <em>"You may use your own LinkedIn credentials in the backend."</em> Multi-credential support would be a storage change behind the same interface, plus <code>auth_id</code> added to the cache key, since LinkedIn discloses different amounts of a profile depending on the viewing account and a shared cache would otherwise serve one session's data to another. It is deliberately not built: holding third-party session cookies demands encryption at rest and key management beyond this exercise's scope, and building that badly would be worse than scoping it out.</p>
+</div>
+
+<h3>Practices adopted where their documentation is silent</h3>
+
+<p>Their public operation pages document no error format, status codes, pagination, rate limiting, versioning or idempotency. Those gaps are filled from Sean Goedecke's <em>Good API Design</em>, with two of its rules independently corroborating choices Tross already makes — plain API keys, and treating versioning as a last resort.</p>
+
+<ul>
+  <li><strong>Rate limiting with metadata.</strong> <code>X-Limit-Remaining</code> and <code>Retry-After</code> on 429. Not decorative: LinkedIn rate-limits us, so throttling protects the single session the service depends on.</li>
+  <li><strong>Expensive fields optional.</strong> <code>input.sections</code> selects which profile sections to fetch, because each additional section costs a separate upstream round trip.</li>
+  <li><strong>Additive evolution only.</strong> Unrecognised upstream fields pass through rather than being dropped; documented fields are never removed.</li>
+  <li><strong>Idempotency keys and cursor pagination were considered and rejected.</strong> Both are inapplicable to a single-object read, and applying them for appearance would signal checklist-following rather than judgement.</li>
+</ul>
+
+<h3>The resulting contract</h3>
+
+<pre>POST /api/integrations/linkedin/fetch-profile
+X-API-Key: &lt;key&gt;
+
+{ "input": { "profileUrl": "https://www.linkedin.com/in/…",
+             "sections": ["experience","education","skills"] },
+  "auth_id": "b3f1c2e4-8a90-4d21-9f77-2ce1d0a4b512" }</pre>
+
+<pre>200 OK
+{ "profile":  { <i>/* mirrors their "patient" / "claims" / "encounters" */</i> },
+  "warnings": [ { "code": "SECTION_UNAVAILABLE", "section": "certifications",
+                  "message": "Not visible to the authenticated session." } ],
+  "fetchedAt": "2026-08-27T09:12:33Z" }</pre>
+
+<pre>4xx / 5xx
+{ "error": { "code": "LINKEDIN_SESSION_EXPIRED",
+             "message": "The backend LinkedIn session is no longer valid.",
+             "retryable": false,
+             "requestId": "req_01J8…" } }</pre>
+
+<div class="callout">
+  <h4>The warnings array is the most consequential decision here</h4>
+  <p>LinkedIn returns different amounts of a profile depending on connection degree and the subject's privacy settings. A section that is simply not visible is a normal condition, not a failure. Degrading that section to a warning while returning everything else makes the API honest about partial data instead of collapsing an entire request over one missing field — and the pattern is borrowed directly from Tross's own write responses.</p>
+</div>
+
+<h3>One deliberate deviation</h3>
+
+<p>Tross uses POST for reads, against ordinary REST convention. POST is kept as the primary method — it matches their house style, keeps profile URLs out of access logs, browser history and <code>Referer</code> headers, and avoids nesting a URL inside a URL. A documented <code>GET</code> alias is also exposed, because that is what callers reach for first.</p>
+
+<h2><span class="num">08</span>Architecture</h2>
+
+<figure>
+<svg viewBox="0 0 800 210" role="img" aria-label="Request flow from consumer through the service to LinkedIn">
+  <rect class="b" x="10" y="78" width="92" height="46" rx="2"/><text class="l" x="56" y="99" text-anchor="middle">Consumer</text><text class="s" x="56" y="113" text-anchor="middle">POST + API key</text>
+  <rect class="b" x="126" y="78" width="88" height="46" rx="2"/><text class="l" x="170" y="99" text-anchor="middle">Gateway</text><text class="s" x="170" y="113" text-anchor="middle">key · rate limit</text>
+  <rect class="b" x="126" y="16" width="88" height="40" rx="2"/><text class="l" x="170" y="35" text-anchor="middle">Cache</text><text class="s" x="170" y="48" text-anchor="middle">TTL · early return</text>
+  <rect class="b" x="126" y="148" width="88" height="46" rx="2"/><text class="l" x="170" y="167" text-anchor="middle">Vault</text><text class="s" x="170" y="180" text-anchor="middle">auth_id → li_at (env)</text>
+  <rect class="b" x="238" y="72" width="118" height="58" rx="2" stroke="var(--accent)"/><text class="l" x="297" y="93" text-anchor="middle">curl_cffi client</text><text class="s" x="297" y="107" text-anchor="middle">impersonate=chrome</text><text class="s" x="297" y="119" text-anchor="middle">4 headers</text>
+  <rect class="b" x="382" y="72" width="122" height="58" rx="2" stroke="var(--accent)"/><text class="l" x="443" y="93" text-anchor="middle">Graph resolver</text><text class="s" x="443" y="107" text-anchor="middle">walk included[]</text><text class="s" x="443" y="119" text-anchor="middle">resolve URNs</text>
+  <rect class="b" x="560" y="42" width="228" height="44" rx="2" stroke="var(--upstream)"/><text class="l" x="674" y="61" text-anchor="middle">Voyager REST · identity/dash/profiles</text><text class="s" x="674" y="75" text-anchor="middle">primary · decorationId · verified 200</text>
+  <rect class="b" x="560" y="116" width="228" height="44" rx="2" stroke="var(--upstream)"/><text class="l" x="674" y="135" text-anchor="middle">Voyager GraphQL</text><text class="s" x="674" y="149" text-anchor="middle">fallback · persisted queryId</text>
+  <g fill="none" stroke="var(--line-2)" stroke-width="1.2">
+    <path d="M102 101 H122"/><path d="M170 78 V60"/><path d="M170 124 V144"/><path d="M214 101 H234"/><path d="M356 101 H378"/>
+  </g>
+  <g fill="none" stroke="var(--upstream)" stroke-width="1.2">
+    <path d="M297 72 V64 H556"/><path d="M297 130 V138 H556"/>
+  </g>
+</svg>
+<figcaption>Request path. No browser is present at runtime; the session cookie is supplied from the environment.</figcaption>
+</figure>
+
+<h2><span class="num">09</span>Security posture</h2>
+
+<ul>
+  <li><strong><code>li_at</code> is HttpOnly.</strong> Page JavaScript cannot read it, which is a deliberate defence: a scripting flaw on linkedin.com cannot be escalated into session theft. Obtaining it requires developer tools or a browser extension with cookie permissions. <code>JSESSIONID</code> is deliberately readable, because the page's own scripts must attach it as the CSRF token — two cookies with opposite visibility requirements, both correct.</li>
+  <li><strong>Secrets never enter the repository.</strong> The session cookie and API keys are supplied as environment variables; the repository carries a <code>.env.example</code> with empty placeholders and a <code>.gitignore</code> covering the real file.</li>
+  <li><strong>Callers are authenticated and throttled.</strong> <code>X-API-Key</code> on every request; 429 with <code>Retry-After</code> beyond the limit.</li>
+  <li><strong>Personal data is kept out of URLs.</strong> Profile URLs travel in the request body, so they do not accumulate in access logs or browser history.</li>
+  <li><strong>Outbound calls are throttled and cached</strong>, which protects the upstream session as much as it improves latency.</li>
+</ul>
+
+<h2><span class="num">10</span>Legal and ethical posture</h2>
+
+<p>Following <em>hiQ Labs v. LinkedIn</em>, accessing public profile data is not a criminal matter under the Computer Fraud and Abuse Act. It nonetheless breaches LinkedIn's Terms of Service as a contractual matter, and LinkedIn enforces that both technically and through litigation.</p>
+
+<div class="callout warn">
+  <h4>The relevant precedent</h4>
+  <p>In <em>LinkedIn Corp. v. Nubela Pte. Ltd. / Proxycurl LLC</em> (N.D. Cal., filed January 2025), LinkedIn alleged the creation of hundreds of thousands of fake accounts to scrape millions of profiles, including non-public data, which was then resold through an API. The defendants settled, agreed to permanently delete all data obtained, accepted a permanent injunction, and shut the service down in July 2025.</p>
+  <p>The conduct that drew the suit was fake-account creation at industrial scale combined with commercial redistribution. This project uses <strong>one genuine account, belonging to its author, with no data resale and no automated account creation</strong> — a materially different posture, though still a Terms of Service violation and presented as a technical demonstration rather than a production service.</p>
+</div>
+
+<h2><span class="num">11</span>Known limitations</h2>
+
+<ul>
+  <li><strong>Data visibility is bounded by the authenticated account.</strong> Connection degree and the subject's privacy settings determine what LinkedIn returns; missing sections surface as warnings rather than errors.</li>
+  <li><strong>GraphQL <code>queryId</code> hashes rotate.</strong> Any fallback path depending on them will break when LinkedIn rotates a persisted query, and the hash must be re-harvested from live traffic.</li>
+  <li><strong>Undocumented endpoints may change without notice.</strong> There is no contract, no deprecation window, and no changelog.</li>
+  <li><strong>Single session, single point of failure.</strong> If the backing account is restricted, the service degrades to a clear <code>LINKEDIN_SESSION_EXPIRED</code> error rather than partial or wrong data.</li>
+  <li><strong>Every caller receives the operator's view of LinkedIn, not their own.</strong> Visibility depends on the backing account's relationship to the subject, so two callers requesting the same profile receive identical data regardless of their own networks. <code>auth_id</code> is a single-session stub; multi-credential support is designed for but not implemented.</li>
+  <li><strong>Not built for volume.</strong> No proxy rotation and no account pooling; throughput is deliberately limited to what one session can sustain safely.</li>
+  <li><strong>Section coverage is being verified.</strong> The top-card fields are confirmed; the endpoints and decoration IDs serving about, skills, certifications, languages and profile images are still being mapped, and any that prove unreachable will be documented here rather than silently omitted.</li>
+</ul>
+
+<div class="foot">
+  <p><strong>Companion material.</strong> An interactive walkthrough of the captured traffic, authentication model and URN resolution is published separately, along with a plain-language glossary of every term used above. The request-flow diagram is maintained in Eraser.</p>
+  <p style="margin-bottom:0"><strong>Sources consulted.</strong> Tross public API documentation (app.ontross.com/docs) · Sean Goedecke, <em>Good API Design</em> · PhantomBuster public <code>io-types</code> API · <code>curl_cffi</code> project documentation · reporting on <em>LinkedIn v. Nubela/Proxycurl</em>.</p>
+</div>
+
+</div>

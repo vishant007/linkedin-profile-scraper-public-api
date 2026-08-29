@@ -1,0 +1,30 @@
+"""Runtime configuration. Secrets arrive from the environment, never the repo."""
+
+from functools import lru_cache
+
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+class Settings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_file=".env", env_file_encoding="utf-8", extra="ignore"
+    )
+
+    # Keys that callers of this API present in X-API-Key, comma separated.
+    api_keys: str = ""
+
+    # The backend LinkedIn session. See .env.example for where to find these.
+    linkedin_li_at: str = ""
+    linkedin_jsessionid: str = ""
+
+    cache_ttl_seconds: int = 900
+    rate_limit_per_minute: int = 30
+
+    @property
+    def accepted_api_keys(self) -> frozenset[str]:
+        return frozenset(k.strip() for k in self.api_keys.split(",") if k.strip())
+
+
+@lru_cache
+def get_settings() -> Settings:
+    return Settings()

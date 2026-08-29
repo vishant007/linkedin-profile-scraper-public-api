@@ -1,0 +1,377 @@
+<meta charset="utf-8">
+<title>Intercept Lexicon</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Newsreader:opsz,wght@6..72,400;6..72,500&display=swap">
+
+<style>
+:root{
+  --bg:#EDF0F3; --surface:#FFFFFF; --surface-2:#F5F7F9; --sunken:#E4E9ED;
+  --ink:#0F161D; --ink-2:#41505E; --ink-3:#6B7B8A;
+  --line:#D3DBE2; --line-2:#BCC7D1;
+  --accent:#B4650F; --accent-soft:#F6E6D2;
+  --upstream:#0D6E78; --upstream-soft:#D8ECEE;
+  --ok:#2A7048; --ok-soft:#DCEDE3;
+  --danger:#A32A20; --danger-soft:#F6DEDB;
+  --shadow:0 1px 2px rgba(15,22,29,.06),0 8px 24px -12px rgba(15,22,29,.18);
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --ui:"Archivo",system-ui,-apple-system,Segoe UI,sans-serif;
+  --prose:"Newsreader",Georgia,"Times New Roman",serif;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E1218; --surface:#171E26; --surface-2:#1D2630; --sunken:#111820;
+    --ink:#D9E1E9; --ink-2:#9EAEBC; --ink-3:#74848F;
+    --line:#2A343F; --line-2:#3A4753;
+    --accent:#F0A94B; --accent-soft:#3A2C17;
+    --upstream:#45B9C4; --upstream-soft:#123037;
+    --ok:#56C285; --ok-soft:#14301F;
+    --danger:#F27B70; --danger-soft:#381815;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px -14px rgba(0,0,0,.7);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E1218; --surface:#171E26; --surface-2:#1D2630; --sunken:#111820;
+  --ink:#D9E1E9; --ink-2:#9EAEBC; --ink-3:#74848F;
+  --line:#2A343F; --line-2:#3A4753;
+  --accent:#F0A94B; --accent-soft:#3A2C17;
+  --upstream:#45B9C4; --upstream-soft:#123037;
+  --ok:#56C285; --ok-soft:#14301F;
+  --danger:#F27B70; --danger-soft:#381815;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px -14px rgba(0,0,0,.7);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--ui);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1180px;margin:0 auto;padding:28px 22px 90px}
+
+.mast{display:flex;justify-content:space-between;align-items:flex-start;gap:24px;flex-wrap:wrap;margin-bottom:24px}
+.eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);font-weight:600;margin:0 0 8px;font-family:var(--mono)}
+.mast h1{font-size:clamp(26px,3.4vw,38px);font-weight:700;letter-spacing:-.025em;margin:0 0 6px;text-wrap:balance}
+.mast h1 span{color:var(--accent)}
+.mast p{margin:0;color:var(--ink-2);max-width:64ch}
+.themebtn{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;background:var(--surface);color:var(--ink-2);border:1px solid var(--line);padding:8px 12px;cursor:pointer;border-radius:2px;white-space:nowrap}
+.themebtn:hover{border-color:var(--line-2);color:var(--ink)}
+.themebtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* controls */
+.controls{position:sticky;top:0;z-index:5;background:var(--bg);padding:12px 0 14px;margin-bottom:6px;border-bottom:1px solid var(--line)}
+.searchrow{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:11px}
+#q{flex:1 1 260px;min-width:0;font-family:var(--mono);font-size:13px;padding:10px 13px;border:1px solid var(--line-2);border-radius:2px;background:var(--surface);color:var(--ink)}
+#q::placeholder{color:var(--ink-3)}
+#q:focus{outline:2px solid var(--accent);outline-offset:-1px;border-color:var(--accent)}
+#count{font-family:var(--mono);font-size:11px;color:var(--ink-3);white-space:nowrap;letter-spacing:.05em}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{font-family:var(--mono);font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;font-weight:700;padding:6px 10px;border-radius:2px;border:1px solid var(--line-2);background:var(--surface);color:var(--ink-3);cursor:pointer}
+.chip:hover{color:var(--ink);border-color:var(--ink-3)}
+.chip:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--bg)}
+
+/* sections */
+.sec{margin-top:34px}
+.sec > h2{
+  font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;
+  color:var(--ink-3);margin:0 0 4px;padding-bottom:9px;border-bottom:1px solid var(--line)
+}
+.sec > .blurb{margin:9px 0 16px;font-family:var(--prose);font-size:16px;color:var(--ink-2);max-width:70ch}
+.terms{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:13px}
+
+.term{background:var(--surface);border:1px solid var(--line);border-radius:3px;box-shadow:var(--shadow);padding:15px 16px;display:flex;flex-direction:column;gap:9px}
+.term.off{border-left:2px solid var(--ink-3)}
+.term.on{border-left:2px solid var(--accent)}
+.thead{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.tname{font-family:var(--mono);font-size:13.5px;font-weight:700;color:var(--ink);word-break:break-word}
+.tag{font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;padding:3px 6px;border-radius:2px;white-space:nowrap}
+.tag.on{background:var(--accent-soft);color:var(--accent)}
+.tag.off{background:var(--sunken);color:var(--ink-3)}
+.plain{margin:0;font-family:var(--prose);font-size:16px;line-height:1.55;color:var(--ink-2)}
+.use{margin:0;padding-top:9px;border-top:1px dashed var(--line);font-size:13.5px;color:var(--ink-2);line-height:1.5}
+.use b{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);display:block;margin-bottom:4px;font-weight:700}
+code{font-family:var(--mono);font-size:12.5px;background:var(--sunken);padding:1px 4px;border-radius:2px;color:var(--accent);word-break:break-word}
+.plain code{background:none;padding:0;color:var(--upstream)}
+.empty{padding:40px 4px;color:var(--ink-3);font-family:var(--mono);font-size:13px}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+
+@media print{
+  :root{
+    --bg:#FFFFFF; --surface:#FFFFFF; --surface-2:#F5F7F9; --sunken:#EDF1F4;
+    --ink:#12181F; --ink-2:#3D4A57; --ink-3:#6E7E8C;
+    --line:#D6DDE3; --line-2:#BAC5CE;
+    --accent:#A85D0C; --accent-soft:#F7E8D6;
+    --upstream:#0C6570; --ok:#256240; --danger:#9C2A20;
+    --shadow:none;
+  }
+  @page{margin:14mm 12mm}
+  body{background:#fff;font-size:9.5pt;line-height:1.45}
+  .wrap{max-width:none;padding:0}
+  .controls{display:none!important}
+  .themebtn{display:none!important}
+  .mast{margin-bottom:16px;border-bottom:2px solid var(--ink);padding-bottom:14px}
+  .mast h1{font-size:24pt}
+  .sec{margin-top:20px;break-inside:auto}
+  .sec > h2{font-size:10pt;break-after:avoid;page-break-after:avoid}
+  .sec > .blurb{font-size:10.5pt;margin-bottom:10px}
+  .terms{grid-template-columns:1fr 1fr;gap:8px}
+  .term{break-inside:avoid;page-break-inside:avoid;box-shadow:none;padding:10px 12px;gap:6px}
+  .tname{font-size:10pt} .plain{font-size:10pt;line-height:1.42}
+  .use{font-size:8.5pt} code{font-size:8.5pt}
+}
+</style>
+
+<div class="wrap">
+  <header class="mast">
+    <div>
+      <p class="eyebrow">Companion reference · LinkedIn Profile API</p>
+      <h1>Intercept <span>Lexicon</span></h1>
+      <p>Every term in the architecture, in plain English, with what it actually does in your build. Terms marked <em>not used</em> are here because you'll meet them and should know why we skipped them.</p>
+    </div>
+    <button class="themebtn" id="themebtn" type="button">Theme: auto</button>
+  </header>
+
+  <div class="controls">
+    <div class="searchrow">
+      <input id="q" type="search" placeholder="Search a term or a word in its meaning…" autocomplete="off">
+      <span id="count"></span>
+    </div>
+    <div class="chips" id="chips"></div>
+  </div>
+
+  <div id="out"></div>
+</div>
+
+<script>
+"use strict";
+(function(){
+  var modes=["auto","light","dark"],i=0,b=document.getElementById("themebtn");
+  b.addEventListener("click",function(){
+    i=(i+1)%3;var m=modes[i];
+    if(m==="auto")document.documentElement.removeAttribute("data-theme");
+    else document.documentElement.setAttribute("data-theme",m);
+    b.textContent="Theme: "+m;
+  });
+})();
+
+var CATS=[
+ {id:"http", n:"Talking over the web", blurb:"The plumbing every web API sits on. Nothing LinkedIn-specific — this is the vocabulary of any HTTP request."},
+ {id:"id",   n:"Who you are", blurb:"How a server knows a request is from you, and the flags that stop other people stealing that proof."},
+ {id:"fp",   n:"How bots get caught", blurb:"The signals that distinguish a real browser from a script. This is the part that made us choose an HTTP client over a headless browser."},
+ {id:"li",   n:"LinkedIn's internals", blurb:"The vocabulary of the system you are reverse engineering. These words appear nowhere in LinkedIn's public documentation, because there isn't any."},
+ {id:"api",  n:"Designing your API", blurb:"How the thing you build presents itself to whoever calls it. Mostly borrowed from Tross's own conventions."},
+ {id:"ship", n:"Shipping it", blurb:"Getting it onto the internet without leaking your credentials."}
+];
+
+var T=[
+/* ─── HTTP ─── */
+{c:"http",n:"HTTP request",u:1,
+ p:"A short text message your computer sends a server. It says which <em>method</em> you want, which <em>path</em>, some labelled lines of metadata called <em>headers</em>, and optionally a <em>body</em> of data.",
+ h:"Your API receives one from its caller, and sends one to LinkedIn. That's the whole job."},
+{c:"http",n:"GET / POST (method)",u:1,
+ p:"The verb of a request. <em>GET</em> means “give me this thing.” <em>POST</em> means “here is some data, do something with it.”",
+ h:"Tross uses POST for every operation, even reads like <code>fetch-patient-info</code>. We match them, and expose a GET alias as a convenience."},
+{c:"http",n:"Header",u:1,
+ p:"A labelled line of metadata attached to a request — like writing on the outside of an envelope. The content goes in the body; instructions about the content go in headers.",
+ h:"Four headers make the Voyager call work, and <code>X-API-Key</code> authenticates callers of your own API."},
+{c:"http",n:"Body",u:1,
+ p:"The actual payload of a request — usually JSON. Only POST-style requests normally carry one.",
+ h:"Your request body is <code>{ \"input\": {…}, \"auth_id\": \"…\" }</code>, copying Tross's envelope exactly."},
+{c:"http",n:"Query string",u:1,
+ p:"The <code>?key=value&amp;other=thing</code> tail of a URL. Parameters visible right in the address.",
+ h:"Voyager takes <code>memberIdentity</code> and <code>decorationId</code> here. Note query strings land in server logs and browser history — which is one reason we keep the profile URL in a body instead."},
+{c:"http",n:"Status code",u:1,
+ p:"A three-digit verdict on your request. <strong>200</strong> fine · <strong>302</strong> go somewhere else · <strong>400</strong> your request was malformed · <strong>401</strong> you're not logged in · <strong>403</strong> logged in but not allowed · <strong>429</strong> slow down · <strong>5xx</strong> the server broke.",
+ h:"You'll return 200, 400, 401, 429 and 502. LinkedIn returns 302 to <code>/login</code> when your session dies — that becomes your <code>LINKEDIN_SESSION_EXPIRED</code> error."},
+{c:"http",n:"Endpoint",u:1,
+ p:"One specific callable address on a server, plus the method that reaches it. A server has many; each does one job.",
+ h:"Yours is <code>POST /api/integrations/linkedin/fetch-profile</code>."},
+{c:"http",n:"JSON",u:1,
+ p:"A plain-text format for structured data — objects in braces, lists in brackets. Readable by humans and every programming language.",
+ h:"What LinkedIn returns, and what you return. The whole assignment is converting their JSON into better JSON."},
+
+/* ─── identity ─── */
+{c:"id",n:"Cookie",u:1,
+ p:"A small piece of text a website asks your browser to keep and send back on every future request. It is how a site remembers you between clicks — HTTP itself has no memory.",
+ h:"Your whole approach depends on one: LinkedIn's session cookie."},
+{c:"id",n:"li_at",u:1,
+ p:"LinkedIn's session cookie. Whoever holds this string <em>is</em> you, as far as LinkedIn's servers are concerned. It is not a password, but it is just as sensitive.",
+ h:"Lives in an environment variable on your server and is sent on every Voyager call. Never in the repo — the brief requires that explicitly."},
+{c:"id",n:"HttpOnly",u:1,
+ p:"A flag on a cookie meaning “JavaScript may not read this.” The browser still sends it automatically; page scripts simply cannot see the value.",
+ h:"<code>li_at</code> has it, which is why <code>document.cookie</code> can't find it and you must copy it from DevTools. It exists so that a scripting bug on the site can't be turned into account theft."},
+{c:"id",n:"Secure flag",u:0,
+ p:"A cookie flag meaning “only ever send this over an encrypted HTTPS connection, never plain HTTP.”",
+ h:"Not something you set, but worth knowing: it's why session cookies vanish if a site is served over plain HTTP."},
+{c:"id",n:"SameSite",u:0,
+ p:"A cookie flag controlling whether the cookie tags along when the request comes from a <em>different</em> website. Set strictly, it stops other sites acting with your logged-in session.",
+ h:"LinkedIn's defence, not yours. It's the modern layer that makes CSRF tokens a second line rather than the only one."},
+{c:"id",n:"CSRF",u:0,
+ p:"Cross-Site Request Forgery. A malicious page silently makes <em>your</em> browser send a request to a site you're logged into. Because your cookies ride along automatically, the site sees a genuine logged-in request.",
+ h:"The attack that the csrf-token header exists to prevent. Understanding it explains why LinkedIn 403s you without that header."},
+{c:"id",n:"CSRF token",u:1,
+ p:"The defence against the above. The server hands the real page a secret value and demands it back on every action. Another site can make your browser send requests, but can't <em>read</em> LinkedIn's pages to learn the value — so it can't supply it.",
+ h:"You send it as the <code>csrf-token</code> header. Omit it and you get 403, even with a perfectly valid session."},
+{c:"id",n:"JSESSIONID",u:1,
+ p:"A second LinkedIn cookie, deliberately <em>readable</em> by JavaScript, whose value looks like <code>ajax:7724…</code>.",
+ h:"Strip its quotes and it <em>is</em> your csrf-token. Two cookies, opposite visibility rules, both correct: one must stay hidden, the other must be readable so the page can attach it."},
+{c:"id",n:"API key",u:1,
+ p:"A long random string that identifies whoever is calling <em>your</em> API. Simpler than a login: no username, no expiry, just a secret string.",
+ h:"Callers send <code>X-API-Key</code>. Both Tross's docs and the Goedecke article independently recommend plain API keys — the two sources agree."},
+{c:"id",n:"auth_id",u:1,
+ p:"An opaque handle — a meaningless-looking ID that stands in for a credential stored safely on the server. The caller references the credential without ever seeing it.",
+ h:"Tross's own pattern, on every documented operation. Copying it means credentials can't leak through your API, and it satisfies the brief's no-secrets rule by design."},
+{c:"id",n:"Environment variable",u:1,
+ p:"A setting handed to a program by the machine it runs on, rather than written inside the code. Change it without changing the program; it never enters version control.",
+ h:"Where <code>LINKEDIN_LI_AT</code> and your API keys live. This is the mechanism that keeps secrets out of the GitHub repo."},
+
+/* ─── fingerprinting ─── */
+{c:"fp",n:"TLS handshake",u:1,
+ p:"The opening conversation of any encrypted connection, before a single byte of your actual request is sent. Both sides announce which encryption methods they support and agree on one.",
+ h:"You never write this code — but it happens on every request, and what it reveals is the reason a naive script gets blocked."},
+{c:"fp",n:"JA3 fingerprint",u:1,
+ p:"A short hash summarising <em>how</em> your software performed that handshake: which ciphers it offered, in what order, with which extensions. Different software has a different shape, so the hash effectively names the program. Chrome looks like Chrome; Python looks like Python.",
+ h:"The single most important idea here. It's why faking a User-Agent doesn't work — you're identified before headers are even read."},
+{c:"fp",n:"HTTP/2 fingerprint",u:1,
+ p:"The same idea one layer up. HTTP/2 lets a client declare settings and frame priorities at connection start, and those choices also form a recognisable pattern.",
+ h:"<code>curl_cffi</code> matches this too, not just the TLS layer. That's why it's the right tool rather than a partial fix."},
+{c:"fp",n:"User-Agent",u:1,
+ p:"A header where a client states what software it is — “I am Chrome 141 on macOS.” It's an unverified claim, trivially set to anything.",
+ h:"Send a realistic one, but never rely on it. Note PhantomBuster <em>asks users for theirs</em>, which tells you they're constructing requests by hand rather than driving a real browser."},
+{c:"fp",n:"curl_cffi",u:1,
+ p:"A Python HTTP library built on a patched version of curl that reproduces a real browser's TLS and HTTP/2 handshake. One argument, <code>impersonate=\"chrome\"</code>, and your connection looks like Chrome's at every layer.",
+ h:"Your production HTTP client. Roughly 50MB, faster than <code>requests</code>, and it delivers the entire benefit a headless browser was providing."},
+{c:"fp",n:"Headless browser",u:0,
+ p:"A real browser running with no visible window, driven by code. Its purpose is running JavaScript to build a page.",
+ h:"<strong>Not used.</strong> Voyager returns JSON — there's no page to render — so it buys nothing here. It also costs ~1GB of RAM and carries its own detectable traces (<code>navigator.webdriver</code>, GPU stack, client hints)."},
+{c:"fp",n:"Playwright",u:0,
+ p:"The library for driving a headless browser: click, type, wait, read.",
+ h:"<strong>Not in production.</strong> At most a local one-off script to log in and print your <code>li_at</code> — and DevTools does that job by hand just as well."},
+{c:"fp",n:"Proxy / residential proxy",u:0,
+ p:"Routing requests through someone else's connection so the target sees their address instead of yours. Residential ones borrow real home connections.",
+ h:"<strong>Not used.</strong> Commercial scrapers need them for volume across many accounts. You have one account and demo traffic — adding proxies would be cost and complexity with no benefit."},
+{c:"fp",n:"Rate limiting",u:1,
+ p:"Capping how many requests a caller may make in a window, and refusing the rest.",
+ h:"You're on both sides. LinkedIn limits <em>you</em>, so you throttle outbound calls to protect the session. Your API limits its callers, returning 429."},
+{c:"fp",n:"Retry-After / X-Limit-Remaining",u:1,
+ p:"Response headers that tell a client how long to wait before retrying, and how much of its allowance is left — so it can behave well instead of guessing.",
+ h:"Returned alongside your 429s. Recommended explicitly by the Goedecke article, and absent from Tross's docs, so this is one of the gaps you fill."},
+
+/* ─── LinkedIn ─── */
+{c:"li",n:"Voyager",u:1,
+ p:"LinkedIn's private internal API — the one their own website calls to fetch data before drawing it on screen. Undocumented, not intended for outside use, and discoverable only by watching browser traffic.",
+ h:"Your data source. Finding it and working out how to speak to it <em>is</em> the reverse engineering the assignment asks for."},
+{c:"li",n:"Rest.li",u:1,
+ p:"LinkedIn's own framework for building APIs, open-sourced years ago and used internally ever since. It has its own conventions for IDs, parameters and response shapes — which is why Voyager looks unlike a typical REST API.",
+ h:"Explains the URN scheme, the <code>(a:b,c:List(x,y))</code> parameter syntax, and the flat response you have to rebuild."},
+{c:"li",n:"URN",u:1,
+ p:"LinkedIn's ID format: <code>urn:li:fsd_profile:ACoAAB1x2Kw</code>. A namespaced address for one object, like a postal address rather than the house itself.",
+ h:"Response fields whose names start with <code>*</code> hold URNs. Resolving them into real objects is the core of your normalizer."},
+{c:"li",n:"included[]",u:1,
+ p:"A flat array holding every object involved in the response, with no nesting. Objects reference each other by URN rather than containing each other — like a pile of numbered index cards that cite each other.",
+ h:"You walk this array, build a lookup from URN to object, follow every <code>*</code> pointer, and reassemble one properly nested profile. This is the deliverable."},
+{c:"li",n:"normalized+json+2.1",u:1,
+ p:"The value of the <code>accept</code> header that asks LinkedIn for the flattened form described above, instead of a deeply nested one.",
+ h:"Drop this single header and the request still succeeds — but you get a different, much more awkward shape. It is what creates the structure your whole resolver assumes."},
+{c:"li",n:"decorationId",u:1,
+ p:"A parameter naming which pre-defined <em>slice</em> of an object you want back. Rather than listing fields, you name a recipe the server already knows.",
+ h:"<code>WebTopCardCore-6</code> returned eight objects in testing. Mapping decoration IDs to the sections you need — experience, education, skills — is the main discovery work."},
+{c:"li",n:"GraphQL",u:0,
+ p:"A style of API where the client writes a query describing exactly which fields it wants, and gets back precisely that shape.",
+ h:"LinkedIn's newer Voyager surface. Your fallback, not your primary — because of the next entry."},
+{c:"li",n:"Persisted query / queryId",u:1,
+ p:"A GraphQL setup where the server stores approved queries in advance and accepts only a <em>name plus a hash</em>, never raw query text. Originally a payload-size optimisation; incidentally it stops outsiders writing their own queries.",
+ h:"<code>queryId=voyagerPremiumDashFeatureAccess.c87b20…</code>. You can't invent one — you harvest valid hashes from real traffic, and they rotate. State this as a known limitation in your README."},
+{c:"li",n:"React Server Components",u:0,
+ p:"A newer way of building web apps where the server sends pre-rendered component output rather than data for the browser to assemble.",
+ h:"LinkedIn is migrating to it. Worth knowing because it killed an older scraping trick: profile JSON used to sit in <code>&lt;code&gt;</code> tags in the HTML, and now there are none."},
+
+/* ─── API design ─── */
+{c:"api",n:"REST",u:1,
+ p:"The common style for web APIs: addresses name things, and HTTP methods say what to do with them. GET to read, POST to create.",
+ h:"Useful as the baseline — and useful because Tross <em>deviates</em> from it by using POST for reads. Noticing that deviation and matching it deliberately is a point in your favour."},
+{c:"api",n:"Envelope",u:1,
+ p:"A consistent outer wrapper every request or response uses, so callers always know where to look.",
+ h:"Tross's is <code>{ input, auth_id }</code> on the way in. On the way out they use no generic wrapper at all — just one key named after the thing (<code>patient</code>, <code>claims</code>). You use <code>profile</code>."},
+{c:"api",n:"Idempotency",u:0,
+ p:"A request is idempotent if sending it twice has the same effect as sending it once. Matters when a network failure leaves you unsure whether the first attempt landed.",
+ h:"<strong>Not implemented, deliberately.</strong> Reads are idempotent by nature. Bolting an <code>Idempotency-Key</code> onto a read would show checklist-following. Say in the README that you considered and rejected it."},
+{c:"api",n:"Cursor pagination",u:0,
+ p:"Returning long lists in pages using a pointer to “where you got to” rather than a numeric offset. Stays fast however deep you go.",
+ h:"<strong>Not applicable</strong> — you return one profile. Mention it as the design you'd use if a batch endpoint were added."},
+{c:"api",n:"Versioning",u:0,
+ p:"Putting <code>/v1/</code> in URLs so you can later ship a <code>/v2/</code> with breaking changes while old callers keep working.",
+ h:"<strong>Not used.</strong> No Tross path has a version segment, and the Goedecke article calls versioning a last resort. Both sources agree — so evolve additively instead."},
+{c:"api",n:"warnings array",u:1,
+ p:"A list attached to an otherwise-successful response, saying “this worked, but here's what you should know.” Partial success rather than pass-or-fail.",
+ h:"The strongest single design decision in your submission. LinkedIn hides sections depending on connection degree and privacy settings, so one missing section becomes a warning rather than a failed request. Borrowed from Tross's own <code>create-telephonic-encounter</code>."},
+{c:"api",n:"Error code",u:1,
+ p:"A short stable string like <code>LINKEDIN_SESSION_EXPIRED</code> that code can branch on, alongside a human-readable message. The message may be reworded; the code must never change.",
+ h:"Tross's docs specify no error format at all, so this one is entirely your design — which makes it something a reviewer will actually read."},
+{c:"api",n:"retryable",u:1,
+ p:"A boolean in an error response telling the caller whether trying again could possibly help.",
+ h:"Saves callers guessing. A dead session is <code>false</code> — retrying will never fix it. A rate-limit is <code>true</code>, and pairs with your <code>Retry-After</code> header."},
+{c:"api",n:"Cache / TTL",u:1,
+ p:"Keeping a recent answer so an identical request can be served without redoing the work. TTL — time to live — is how long before it's considered stale.",
+ h:"Doing double duty: it makes repeat requests instant <em>and</em> it protects your single LinkedIn session from being hammered during review."},
+{c:"api",n:"OpenAPI",u:1,
+ p:"A machine-readable description of an API — every endpoint, parameter and response shape — that tools can turn into browsable documentation automatically.",
+ h:"If you build in FastAPI you get this for free at <code>/docs</code>. A reviewer landing on live interactive documentation is a strong first impression for no extra work."},
+
+/* ─── shipping ─── */
+{c:"ship",n:"HTTPS / TLS certificate",u:1,
+ p:"HTTP with the connection encrypted, proven by a certificate that vouches the server really is who the domain says. The padlock.",
+ h:"The brief requires the API be deployed publicly over HTTPS. Modern hosts issue and renew the certificate for you at no cost."},
+{c:"ship",n:"Secret management",u:1,
+ p:"The discipline of keeping credentials out of source code — supplying them at runtime instead, so they never enter version control or reach anyone reading the repo.",
+ h:"An explicit graded requirement: “keep all credentials and secrets out of the repository.” Also add a <code>.env.example</code> with empty placeholders so setup is obvious without leaking anything."},
+{c:"ship",n:"Docker",u:1,
+ p:"Packaging an app with everything it needs to run into one image, so it behaves identically on your laptop and on a server.",
+ h:"Much lighter now that no browser is bundled — a small Python image instead of one carrying Chromium. Makes the deploy portable across hosts."},
+{c:"ship",n:"Terms of Service",u:1,
+ p:"The contract you accept by using a site. Distinct from law: breaking it is a contract matter, not a crime.",
+ h:"Automated LinkedIn access violates theirs. After <em>hiQ</em> this isn't a criminal question, but LinkedIn does litigate — Proxycurl was sued in 2025 and shut down. State your posture honestly: one real account, no fake accounts, no resale."}
+];
+
+var active="all", query="";
+
+function build(){
+  var chips=document.getElementById("chips");
+  chips.innerHTML='<button class="chip" data-c="all" aria-pressed="true">All</button>'
+    +CATS.map(function(c){return '<button class="chip" data-c="'+c.id+'" aria-pressed="false">'+c.n+'</button>';}).join("")
+    +'<button class="chip" data-c="off" aria-pressed="false">Not used &amp; why</button>';
+  chips.addEventListener("click",function(e){
+    var b=e.target.closest(".chip"); if(!b) return;
+    active=b.dataset.c;
+    [].forEach.call(chips.children,function(x){x.setAttribute("aria-pressed",x.dataset.c===active);});
+    paint();
+  });
+  document.getElementById("q").addEventListener("input",function(e){query=e.target.value.toLowerCase();paint();});
+}
+
+function matches(t){
+  if(active==="off"&&t.u) return false;
+  if(active!=="all"&&active!=="off"&&t.c!==active) return false;
+  if(!query) return true;
+  return (t.n+" "+t.p+" "+t.h).toLowerCase().indexOf(query)>-1;
+}
+
+function card(t){
+  return '<article class="term '+(t.u?"on":"off")+'">'
+    +'<div class="thead"><span class="tname">'+t.n+'</span>'
+    +'<span class="tag '+(t.u?"on":"off")+'">'+(t.u?"in our build":"not used")+'</span></div>'
+    +'<p class="plain">'+t.p+'</p>'
+    +'<p class="use"><b>'+(t.u?"How we use it":"Why we skipped it")+'</b>'+t.h+'</p></article>';
+}
+
+function paint(){
+  var out=document.getElementById("out"), html="", n=0;
+  CATS.forEach(function(c){
+    var list=T.filter(function(t){return t.c===c.id&&matches(t);});
+    if(!list.length) return;
+    n+=list.length;
+    html+='<section class="sec"><h2>'+c.n+'</h2><p class="blurb">'+c.blurb+'</p>'
+       +'<div class="terms">'+list.map(card).join("")+'</div></section>';
+  });
+  out.innerHTML=html||'<p class="empty">No term matches “'+query.replace(/</g,"&lt;")+'”.</p>';
+  document.getElementById("count").textContent=n+" of "+T.length+" terms";
+}
+
+build(); paint();
+</script>

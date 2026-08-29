@@ -1,0 +1,20 @@
+# secrets — never commit
+.env
+.env.local
+*.pem
+
+# python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+
+# os / editor
+.DS_Store
+.idea/
+.vscode/
+
+# stray tooling artefacts
+request.json
