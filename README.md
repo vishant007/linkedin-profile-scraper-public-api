@@ -125,7 +125,15 @@ uv run uvicorn app.main:app --port 8000
 
 ## Approach
 
-Full write-up in [`docs/approach.html`](docs/approach.html); endpoint survey in [`docs/section-map.md`](docs/section-map.md).
+### One call, not many
+
+The profile is assembled from ten separate sections — identity, about, location, image, experience, education, skills, certifications, languages. **All of them arrive in a single request.**
+
+That is the central engineering result. The obvious implementation issues one call per section, or falls back to fetching and parsing the rendered page when a section resists. Either way the cost is roughly one upstream request per section, per profile, and each is a separate parser that breaks on its own schedule.
+
+Finding one endpoint that returns the entire graph collapses that to a single request and a single resolver. On a service whose whole risk is one account being rate-limited or flagged, request count per profile is the variable that matters most — a sevenfold reduction in upstream traffic is not an optimisation, it is the difference between a demo that survives review and one that does not. It also removes nine parsers and nine failure modes.
+
+The rest of this section is how that endpoint was found and what had to be done with what it returns.
 
 ### Finding the data
 
@@ -169,11 +177,11 @@ Headless browsers exist to run JavaScript. Voyager returns JSON, so there is not
 
 ### Contract
 
-The schema was mine to design, so it follows Tross's, verified across five documented operations: `POST` for everything including reads, `/api/integrations/{vendor}/{verb-noun}`, no version segment, `X-API-Key`, arguments wrapped in `input`, and a response keyed by **one domain noun** rather than a generic `data` wrapper — `{patient…}`, `{claims…}`, so `{profile…}`.
+`POST` is the primary method with a documented `GET` alias. A profile URL in a query string lands in access logs, browser history and `Referer` headers; a body keeps it out. The alias exists because `GET` is what people reach for first.
 
-Their gaps are filled from Sean Goedecke's [*Good API Design*](https://www.seangoedecke.com/good-api-design/): rate limiting with `Retry-After` and `X-Limit-Remaining`; additive-only evolution; no idempotency key, because the article explicitly exempts reads.
+Arguments are wrapped in `input` so the envelope has room to grow without disturbing them, and the response is keyed by one domain noun — `{"profile": …}` — rather than a generic `data` wrapper, so a reader can tell what they asked for from the response alone.
 
-Tross's envelope also carries an `auth_id` naming which stored credential to use. That has no analogue here — one session, and the API key already identifies the caller — so a required field would be a constant callers retype. Adding credentials later would reintroduce it.
+No path carries a version segment. Fields are added, never removed or retyped, so callers written today keep working.
 
 ### Decisions worth naming
 
@@ -207,7 +215,7 @@ Failed authentication is logged as a SHA-256 fingerprint, never the key — cred
 
 **GraphQL persisted queries are not implemented.** LinkedIn's newer surface accepts only a query name plus a hash, which must be harvested from live traffic and which LinkedIn rotates. REST returns everything needed, so this was documented rather than built.
 
-**API keys alone, no OAuth.** Tross uses a bare `X-API-Key` on every operation, Goedecke argues long-lived keys keep an API reachable, and OAuth would mean an authorisation server for a single read endpoint.
+**API keys alone, no OAuth.** A long-lived key keeps the API reachable to anyone who can send an HTTP request. OAuth would mean running an authorisation server and a token lifecycle for a single read endpoint, which is more machinery than this needs.
 
 **Not built for volume.** No proxy rotation, no account pooling. Undocumented endpoints carry no contract, no deprecation window and no changelog.
 
