@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "LinkedIn Profile API",
-    "description": "Accepts a LinkedIn profile URL and returns the profile as structured JSON, sourced from LinkedIn's internal Voyager API.\n\n## Setup (30 seconds)\n\n1. Open the collection's **Variables** tab\n2. Paste the API key you were given into `apiKey`\n3. Optionally change `profileUrl` to any LinkedIn profile\n4. Open **2 · Fetch profile** and hit **Send**\n\nEverything else is pre-filled. Each request carries assertions, so the **Test Results** tab tells you what passed.\n\n> The first request may take ~50s if the service has been idle — free hosting tier waking up. Everything after that is fast.\n\nRepo: https://github.com/vishant007/tross-assignment",
+    "description": "Accepts a LinkedIn profile URL and returns the profile as structured JSON, sourced from LinkedIn's internal Voyager API.\n\n## Setup (30 seconds)\n\n1. Open the collection's **Variables** tab\n2. Paste the API key you were given into `apiKey`\n3. Optionally change `profileUrl` to any LinkedIn profile\n4. Open **2 · Fetch profile** and hit **Send**\n\nEverything else is pre-filled. Each request carries assertions, so the **Test Results** tab tells you what passed.\n\n> The first request may take ~50s if the service has been idle — free hosting tier waking up. Everything after that is fast.\n\nRepo: https://github.com/vishant007/linkedin-profile-scraper-public-api",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "auth": {

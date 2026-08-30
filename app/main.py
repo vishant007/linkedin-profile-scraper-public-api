@@ -223,7 +223,7 @@ _INDEX_HTML = """<!doctype html>
       <a href="/redoc">Reference</a>
       <a href="/openapi.json">OpenAPI spec</a>
       <a href="/health">Health</a>
-      <a href="https://github.com/vishant007/tross-assignment">Source</a>
+      <a href="https://github.com/vishant007/linkedin-profile-scraper-public-api">Source</a>
     </div>
   </div>
 
@@ -241,7 +241,7 @@ async def index(request: Request):
         "openapi": "/openapi.json",
         "health": "/health",
         "fetchProfile": "POST /api/integrations/linkedin/fetch-profile",
-        "repository": "https://github.com/vishant007/tross-assignment",
+        "repository": "https://github.com/vishant007/linkedin-profile-scraper-public-api",
     }
     if "text/html" not in request.headers.get("accept", ""):
         return JSONResponse({"service": app.title, "version": app.version, "links": links})

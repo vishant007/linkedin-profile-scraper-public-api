@@ -1,5 +1,5 @@
 [project]
-name = "linkedin-profile-api"
+name = "linkedin-profile-scraper-public-api"
 version = "0.1.0"
 description = "Hosted API returning a LinkedIn profile as structured JSON, via LinkedIn's internal Voyager API."
 requires-python = ">=3.12"
