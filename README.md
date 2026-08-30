@@ -16,6 +16,7 @@ curl -X POST https://<host>/api/integrations/linkedin/fetch-profile \
 
 ## Contents
 
+- [Try it in Postman](#try-it-in-postman-fastest)
 - [Quick start](#quick-start)
 - [API reference](#api-reference)
 - [Approach](#approach--how-the-api-was-reverse-engineered)
@@ -26,6 +27,23 @@ curl -X POST https://<host>/api/integrations/linkedin/fetch-profile \
 - [Project layout](#project-layout)
 - [Testing](#testing)
 - [Deployment](#deployment)
+
+---
+
+## Try it in Postman (fastest)
+
+A ready-made collection lives at [`postman/LinkedIn-Profile-API.postman_collection.json`](postman/LinkedIn-Profile-API.postman_collection.json).
+
+1. **Postman → Import →** drop in that file (or paste its raw GitHub URL)
+2. Open the collection's **Variables** tab and paste your API key into `apiKey`
+3. Optionally change `profileUrl` to any LinkedIn profile
+4. Open **2 · Fetch profile** and hit **Send**
+
+`baseUrl` and `auth_id` are pre-filled; the key is the only thing you supply.
+
+Seven requests are included — the happy path, section filtering, the GET alias, and three deliberate error cases (401, 403, 400). **Every request carries assertions**, so the Test Results tab reports whether the response contract, the error envelope, and the security headers are all correct. Running the whole collection takes a few seconds and exercises the API's behaviour rather than just its availability.
+
+> `apiKey` ships empty on purpose. This project keeps credentials out of version control, and an API key is a credential — committing a working one to a public repository would contradict the practice the rest of the codebase follows.
 
 ---
 
