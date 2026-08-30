@@ -173,3 +173,29 @@ def test_health_never_raises_even_if_the_probe_explodes(client, monkeypatch):
     except RuntimeError:
         raise AssertionError("/health must never propagate an exception")
     assert r.status_code in (200, 500)
+
+
+def test_root_serves_html_to_browsers_not_404(client):
+    """A base URL that 404s reads as a broken deployment."""
+    r = client.get("/", headers={"Accept": "text/html"})
+    assert r.status_code == 200
+    assert "LinkedIn Profile API" in r.text
+    assert "/docs" in r.text
+
+
+def test_root_serves_json_to_api_clients(client):
+    r = client.get("/", headers={"Accept": "application/json"})
+    assert r.status_code == 200
+    assert r.json()["links"]["health"] == "/health"
+
+
+def test_health_checked_at_reflects_the_probe_not_the_reply(client, monkeypatch):
+    """A cached answer must not claim to be freshly verified."""
+    import app.main as m
+
+    m._health_cache.update(checked_at=0.0, checked_wall=None, valid=None, detail=None)
+    monkeypatch.setattr(m, "_probe_session", lambda: (True, None))
+
+    first = client.get("/health").json()["checkedAt"]
+    second = client.get("/health").json()["checkedAt"]
+    assert first == second, "checkedAt moved while the probe result was cached"
