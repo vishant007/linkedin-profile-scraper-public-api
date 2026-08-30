@@ -115,12 +115,12 @@ _health_cache: dict[str, object] = {"checked_at": 0.0, "valid": None, "detail": 
 
 def _probe_session() -> tuple[bool | None, str | None]:
     """Ask LinkedIn who we are. Returns (sessionValid, detail)."""
-    from app.credentials import resolve as resolve_session
+    from app.credentials import resolve_operator_session
     from app.voyager.client import VoyagerClient
     from app.voyager.endpoints import fetch_me
 
     try:
-        payload = fetch_me(VoyagerClient(resolve_session("health")))
+        payload = fetch_me(VoyagerClient(resolve_operator_session()))
     except ApiError as exc:
         return False, exc.message
     except Exception:  # never let a health check raise

@@ -77,6 +77,25 @@ def _bindings() -> dict[str, Binding]:
     }
 
 
+def resolve_operator_session() -> LinkedInSession:
+    """The session the service itself holds, with no ownership check.
+
+    For internal use only -- the health probe asking "is my own credential
+    still good?". There is no caller here, so there is no ownership to verify;
+    demanding one would mean inventing a fake key to satisfy it.
+    """
+    settings = get_settings()
+    if not settings.linkedin_li_at or not settings.linkedin_jsessionid:
+        raise LinkedInSessionExpired(
+            "No LinkedIn session is configured. Set LINKEDIN_LI_AT and "
+            "LINKEDIN_JSESSIONID in the environment."
+        )
+    return LinkedInSession(
+        li_at=settings.linkedin_li_at.strip(),
+        jsessionid=settings.linkedin_jsessionid.strip(),
+    )
+
+
 def resolve(auth_id: str, api_key: str) -> LinkedInSession:
     """Resolve an opaque handle to a session, checking the caller owns it.
 

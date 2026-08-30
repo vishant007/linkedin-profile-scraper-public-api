@@ -111,3 +111,44 @@ def test_security_headers_are_present_even_on_errors(client):
     r = client.post(PATH, json=_body(), headers={"X-API-Key": "wrong"})
     assert r.status_code == 401
     assert "Strict-Transport-Security" in r.headers
+
+
+# -- regression: the probe must actually run ------------------------------- #
+
+def test_probe_session_really_runs(monkeypatch):
+    """Exercise _probe_session itself, not a stub of it.
+
+    Every other health test replaces this function wholesale, which is how a
+    signature change slipped through to production: the probe raised TypeError,
+    was swallowed by the catch-all, and reported sessionValid: null.
+    Only the network is stubbed here.
+    """
+    monkeypatch.setenv("LINKEDIN_LI_AT", "x")
+    monkeypatch.setenv("LINKEDIN_JSESSIONID", '"ajax:1"')
+    get_settings.cache_clear()
+
+    import app.main as m
+
+    monkeypatch.setattr(m, "_probe_session", m._probe_session)  # ensure the real one
+    monkeypatch.setattr(
+        "app.voyager.endpoints.fetch_me", lambda _c: {"data": {}, "included": [{}]}
+    )
+
+    valid, detail = m._probe_session()
+    assert valid is True, f"probe did not run cleanly: {detail}"
+    assert detail is None
+    get_settings.cache_clear()
+
+
+def test_probe_reports_false_not_null_when_unconfigured(monkeypatch):
+    """An absent credential is a known state, not an unknown one."""
+    monkeypatch.setenv("LINKEDIN_LI_AT", "")
+    monkeypatch.setenv("LINKEDIN_JSESSIONID", "")
+    get_settings.cache_clear()
+
+    import app.main as m
+
+    valid, detail = m._probe_session()
+    assert valid is False  # false = we know it is bad; null = we could not tell
+    assert "No LinkedIn session is configured" in detail
+    get_settings.cache_clear()
