@@ -74,7 +74,10 @@ def test_success_shape_matches_contract(client):
 def test_get_alias_works(client):
     r = client.get(
         PATH,
-        params={"profileUrl": "https://www.linkedin.com/in/thevishantshah/", "auth_id": "a"},
+        params={
+            "profileUrl": "https://www.linkedin.com/in/thevishantshah/",
+            "auth_id": "b3f1c2e4-8a90-4d21-9f77-2ce1d0a4b512",
+        },
         headers={"X-API-Key": "test-key"},
     )
     assert r.status_code == 200

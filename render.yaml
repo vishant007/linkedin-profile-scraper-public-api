@@ -1,0 +1,29 @@
+# Render blueprint. Secrets are marked sync:false so they are set in the
+# dashboard and never live in the repository.
+services:
+  - type: web
+    name: linkedin-profile-api
+    runtime: python
+    plan: free
+    buildCommand: "pip install --upgrade pip && pip install ."
+    startCommand: "uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.14"
+
+      # --- set these in the Render dashboard ---
+      - key: API_KEYS
+        sync: false
+      - key: AUTH_ID
+        sync: false
+      - key: LINKEDIN_LI_AT
+        sync: false
+      - key: LINKEDIN_JSESSIONID
+        sync: false
+
+      # --- safe to keep in the blueprint ---
+      - key: CACHE_TTL_SECONDS
+        value: "21600"
+      - key: RATE_LIMIT_PER_MINUTE
+        value: "30"

@@ -36,6 +36,14 @@ async def attach_request_id(request: Request, call_next):
     request.state.request_id = f"req_{uuid.uuid4().hex[:20]}"
     response = await call_next(request)
     response.headers["X-Request-Id"] = request.state.request_id
+
+    # Tell browsers never to speak plain HTTP to this host again. TLS is
+    # terminated by the platform, but without this a client will happily try
+    # http:// once more and be redirected in the clear.
+    response.headers["Strict-Transport-Security"] = (
+        "max-age=31536000; includeSubDomains"
+    )
+    response.headers["X-Content-Type-Options"] = "nosniff"
     return response
 
 

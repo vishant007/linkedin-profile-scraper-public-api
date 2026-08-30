@@ -11,6 +11,7 @@ from enum import StrEnum
 class ErrorCode(StrEnum):
     INVALID_API_KEY = "INVALID_API_KEY"
     INVALID_REQUEST = "INVALID_REQUEST"
+    FORBIDDEN_AUTH_ID = "FORBIDDEN_AUTH_ID"
     INVALID_PROFILE_URL = "INVALID_PROFILE_URL"
     PROFILE_NOT_FOUND = "PROFILE_NOT_FOUND"
     LINKEDIN_SESSION_EXPIRED = "LINKEDIN_SESSION_EXPIRED"
@@ -35,6 +36,18 @@ class ApiError(Exception):
 class InvalidApiKey(ApiError):
     status = 401
     code = ErrorCode.INVALID_API_KEY
+    retryable = False
+
+
+class ForbiddenAuthId(ApiError):
+    """The auth_id is unknown, or is not owned by the presenting API key.
+
+    Deliberately one error for both cases: distinguishing them would let a
+    caller enumerate which handles exist.
+    """
+
+    status = 403
+    code = ErrorCode.FORBIDDEN_AUTH_ID
     retryable = False
 
 

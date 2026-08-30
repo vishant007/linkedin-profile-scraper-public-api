@@ -11,10 +11,19 @@ LinkedIn credentials in the backend"). Supporting many sessions later is a
 change to this module only -- the wire contract does not move.
 """
 
+import hashlib
+import logging
 from dataclasses import dataclass
 
 from app.config import get_settings
-from app.errors import LinkedInSessionExpired
+
+log = logging.getLogger(__name__)
+
+
+def _fingerprint(value: str) -> str:
+    """Identify a secret in logs without recording it."""
+    return hashlib.sha256(value.encode()).hexdigest()[:12] if value else "<empty>"
+from app.errors import ForbiddenAuthId, LinkedInSessionExpired
 
 
 @dataclass(frozen=True)
@@ -37,13 +46,44 @@ class LinkedInSession:
         return "LinkedInSession(li_at=<redacted>, jsessionid=<redacted>)"
 
 
-def resolve(auth_id: str) -> LinkedInSession:
-    """Resolve an opaque handle to a session.
+@dataclass(frozen=True)
+class Binding:
+    """One handle, the keys entitled to use it, and the session behind it."""
 
-    Single-tenant: the handle is accepted and recorded, but every handle maps to
-    the one configured session. Multi-tenant would look the handle up in a store
-    here -- and would also need `auth_id` in the cache key, since LinkedIn
-    discloses different amounts of a profile depending on the viewing account.
+    auth_id: str
+    owner_keys: frozenset[str]
+    session: LinkedInSession
+
+
+def _bindings() -> dict[str, Binding]:
+    """Build the handle registry from configuration.
+
+    Single-tenant: one handle, owned by every configured API key, because all
+    keys belong to the same operator. The registry is a mapping rather than a
+    single value so the ownership check below is a real code path and not a
+    comment -- adding a second binding is the whole of multi-tenancy here.
+    """
+    settings = get_settings()
+    session = LinkedInSession(
+        li_at=settings.linkedin_li_at.strip(),
+        jsessionid=settings.linkedin_jsessionid.strip(),
+    )
+    return {
+        settings.auth_id: Binding(
+            auth_id=settings.auth_id,
+            owner_keys=settings.accepted_api_keys,
+            session=session,
+        )
+    }
+
+
+def resolve(auth_id: str, api_key: str) -> LinkedInSession:
+    """Resolve an opaque handle to a session, checking the caller owns it.
+
+    Without this check the API has a Broken Object Level Authorization flaw:
+    authentication proves *who is calling*, but nothing would prove the handle
+    they passed is theirs to use. Single tenancy makes the check vacuous today,
+    which is exactly why it is worth writing down rather than assuming.
     """
     settings = get_settings()
 
@@ -53,7 +93,18 @@ def resolve(auth_id: str) -> LinkedInSession:
             "LINKEDIN_JSESSIONID in the environment."
         )
 
-    return LinkedInSession(
-        li_at=settings.linkedin_li_at.strip(),
-        jsessionid=settings.linkedin_jsessionid.strip(),
-    )
+    binding = _bindings().get(auth_id)
+
+    # One error for "no such handle" and "not yours", so the response cannot be
+    # used to enumerate which handles exist.
+    if binding is None or api_key not in binding.owner_keys:
+        log.warning(
+            "auth_id rejected: handle=%s key=%s",
+            _fingerprint(auth_id),
+            _fingerprint(api_key),
+        )
+        raise ForbiddenAuthId(
+            "The supplied auth_id is not available to this API key."
+        )
+
+    return binding.session
