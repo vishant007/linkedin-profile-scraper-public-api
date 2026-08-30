@@ -125,6 +125,10 @@ uv run uvicorn app.main:app --port 8000
 
 ## Approach
 
+![Request flow: a consumer calls the gateway, which authenticates, checks the cache, resolves the session, makes one call to Voyager REST and hands the flat URN graph to the resolver](docs/img/request-flow.png)
+
+*Three zones: the caller, this service, and LinkedIn. [Open the editable diagram](https://app.eraser.io/workspace/ygRvBA4WKv02WtZ43bQc?diagram=e4AIISCHu09JqEOhePXJ&layout=canvas).*
+
 ### One call, not many
 
 The profile is assembled from ten separate sections — identity, about, location, image, experience, education, skills, certifications, languages. **All of them arrive in a single request.**
