@@ -214,12 +214,4 @@ Failed authentication is logged as a SHA-256 fingerprint, never the key — cred
 
 **One credential, single point of failure.** Supporting several would mean a request field naming which to use, resolution in `credentials.py`, and the caller identity in the cache key — a breaking change, plus encryption at rest for third-party cookies.
 
-**The decoration version drifts.** `FullProfileWithEntities-63` was verified 2026-08-27. Adjacent versions are probed, but the range will eventually need widening.
-
-**GraphQL persisted queries are not implemented.** LinkedIn's newer surface accepts only a query name plus a hash, which must be harvested from live traffic and which LinkedIn rotates. REST returns everything needed, so this was documented rather than built.
-
-**API keys alone, no OAuth.** A long-lived key keeps the API reachable to anyone who can send an HTTP request. OAuth would mean running an authorisation server and a token lifecycle for a single read endpoint, which is more machinery than this needs.
-
-**Not built for volume.** No proxy rotation, no account pooling. Undocumented endpoints carry no contract, no deprecation window and no changelog.
-
 **Legal position.** After *hiQ Labs v. LinkedIn*, accessing public profile data is not a CFAA matter, but it does breach LinkedIn's Terms of Service, and LinkedIn litigates — in *LinkedIn v. Nubela/Proxycurl* (N.D. Cal. 2025) the defendants settled, deleted the data and shut down after allegedly creating hundreds of thousands of fake accounts. This uses one genuine account belonging to its author, creates no accounts, resells no data, and is a technical demonstration.
