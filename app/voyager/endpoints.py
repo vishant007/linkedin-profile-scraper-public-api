@@ -19,6 +19,7 @@ from app.voyager.client import VoyagerClient
 log = logging.getLogger(__name__)
 
 PROFILES_PATH = "/voyager/api/identity/dash/profiles"
+ME_PATH = "/voyager/api/me"
 
 _DECO = "com.linkedin.voyager.dash.deco.identity.profile"
 FULL_PROFILE_DECORATION = f"{_DECO}.FullProfileWithEntities"
@@ -113,5 +114,15 @@ def fetch_full_profile(client: VoyagerClient, public_id: str) -> dict[str, Any]:
 
 
 def fetch_top_card(client: VoyagerClient, public_id: str) -> dict[str, Any]:
-    """A small, cheap call. Used by /health to check the session is still alive."""
+    """A smaller projection. Kept for diagnostics."""
     return client.get(PROFILES_PATH, _params(public_id, TOP_CARD_DECORATION))
+
+
+def fetch_me(client: VoyagerClient) -> dict[str, Any]:
+    """Ask LinkedIn who the session belongs to.
+
+    The cheapest honest session check: ~2.8 kB against ~12 kB for a top card,
+    and it is semantically the right question -- "is this session still me?" --
+    without fetching a third party's profile to answer it.
+    """
+    return client.get(ME_PATH)

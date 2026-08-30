@@ -21,7 +21,7 @@ How to mint a session
 3. Copy two values into your .env:
 
      li_at       ->  LINKEDIN_LI_AT
-     JSESSIONID  ->  LINKEDIN_JSESSIONID     (looks like "ajax:7724375213620705372")
+     JSESSIONID  ->  LINKEDIN_JSESSIONID     (looks like "ajax:1234567890123456789")
 
 li_at is HttpOnly, which is why it cannot be read by script and must be copied
 by hand. Treat it like a password: it grants full account access. Revoke it any
