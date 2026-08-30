@@ -57,7 +57,10 @@ def _envelope(
             code=code, message=message, retryable=retryable, request_id=request_id
         )
     )
-    headers = {"Retry-After": str(retry_after)} if retry_after else None
+    headers = None
+    if retry_after:
+        # A 429 without both headers leaves the caller guessing when to retry.
+        headers = {"Retry-After": str(retry_after), "X-Limit-Remaining": "0"}
     return JSONResponse(
         status_code=status,
         content=body.model_dump(by_alias=True, mode="json"),

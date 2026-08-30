@@ -13,6 +13,7 @@ from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, Query, Request, Response
 
 from app.cache import get_cache
+from app.ratelimit import get_limiter
 from app.credentials import resolve as resolve_session
 from app.schemas import (
     DEFAULT_SECTIONS,
@@ -38,6 +39,9 @@ def _fetch(
 
     Each step is one box on the flow diagram, in order.
     """
+    remaining = get_limiter().check(api_key)
+    response.headers["X-Limit-Remaining"] = str(remaining)
+
     public_id = public_identifier_from_url(payload.input.profile_url)
 
     cache = get_cache()
