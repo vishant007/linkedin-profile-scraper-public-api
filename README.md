@@ -12,12 +12,15 @@ The service is deployed and running. Nothing to install.
 
 **Base URL** — `https://tross-assignment-ihro.onrender.com`
 
+API KEY to use: tross-demo-79
+
 ```bash
 curl -X POST https://tross-assignment-ihro.onrender.com/api/integrations/linkedin/fetch-profile \
   -H "X-API-Key: $API_KEY" \
   -H "Content-Type: application/json" \
   -d '{"input":{"profileUrl":"https://www.linkedin.com/in/thevishantshah/"}}'
 ```
+
 
 Swap the URL for any LinkedIn profile. The API key is supplied alongside this repository; it is not committed here, because an API key is a credential.
 
