@@ -1,9 +1,3 @@
-"""Application entrypoint.
-
-Every failure leaves through one door, so the error envelope is identical
-whatever went wrong.
-"""
-
 import logging
 import time
 import uuid
@@ -37,9 +31,6 @@ async def attach_request_id(request: Request, call_next):
     response = await call_next(request)
     response.headers["X-Request-Id"] = request.state.request_id
 
-    # Tell browsers never to speak plain HTTP to this host again. TLS is
-    # terminated by the platform, but without this a client will happily try
-    # http:// once more and be redirected in the clear.
     response.headers["Strict-Transport-Security"] = (
         "max-age=31536000; includeSubDomains"
     )
@@ -59,7 +50,6 @@ def _envelope(
     )
     headers = None
     if retry_after:
-        # A 429 without both headers leaves the caller guessing when to retry.
         headers = {"Retry-After": str(retry_after), "X-Limit-Remaining": "0"}
     return JSONResponse(
         status_code=status,
@@ -109,13 +99,7 @@ async def handle_unexpected(request: Request, exc: Exception) -> JSONResponse:
     )
 
 
-# The session probe is cached so that repeated health checks -- uptime monitors,
-# keep-warm pings, a reviewer clicking refresh -- cannot themselves become the
-# traffic that gets the backend session flagged.
 _HEALTH_TTL_SECONDS = 60
-# `checked_at` is the monotonic clock for expiry; `checked_wall` is the real
-# time the probe ran, which is what the response reports. Reporting "now"
-# instead would make a cached answer look freshly verified.
 _health_cache: dict[str, object] = {
     "checked_at": 0.0,
     "checked_wall": None,
@@ -145,13 +129,6 @@ def _probe_session() -> tuple[bool | None, str | None]:
 
 @app.get("/health", tags=["ops"], summary="Liveness and backend session state")
 async def health() -> dict:
-    """Liveness, plus whether the backend LinkedIn session is still usable.
-
-    Always returns 200 -- the service is up either way. ``sessionValid: false``
-    means the credential needs renewing, which is an operator task rather than a
-    caller error, and saying so plainly beats letting the next profile request
-    fail with an error the caller cannot act on.
-    """
     now = time.monotonic()
     if now - float(_health_cache["checked_at"]) > _HEALTH_TTL_SECONDS:
         # Belt and braces: _probe_session guards itself, but /health is what
@@ -258,12 +235,6 @@ _INDEX_HTML = """<!doctype html>
 
 @app.get("/", include_in_schema=False)
 async def index(request: Request):
-    """Landing page.
-
-    A base URL that 404s reads as a broken deployment to anyone who pastes it
-    into a browser, which a reviewer will. Serves HTML to browsers and JSON to
-    API clients, so both audiences get something useful.
-    """
     links = {
         "documentation": "/docs",
         "reference": "/redoc",

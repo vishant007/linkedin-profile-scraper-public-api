@@ -52,13 +52,8 @@ class RateLimiter:
         with self._lock:
             bucket = self._buckets.get(key)
             if bucket is None:
-                # Bound the map so an attacker cycling keys cannot grow it forever.
                 if len(self._buckets) >= MAX_TRACKED_KEYS:
                     self._evict_stale(now)
-                # updated_at must be the `now` captured above, not the creation
-                # instant. Defaulting it makes elapsed negative on the first
-                # call, docking a fraction of a token and refusing request one
-                # whenever the capacity is small.
                 bucket = _Bucket(tokens=self._capacity, updated_at=now)
                 self._buckets[key] = bucket
 
@@ -77,8 +72,6 @@ class RateLimiter:
                 )
 
             bucket.tokens -= 1.0
-            # Refill is time-based, so tokens drift by fractions of a nanosecond.
-            # Truncating 1.9999999 to 1 would under-report by a whole request.
             return max(0, int(bucket.tokens + 1e-6))
 
     def _evict_stale(self, now: float) -> None:

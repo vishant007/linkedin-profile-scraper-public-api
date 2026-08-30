@@ -1,10 +1,3 @@
-"""API Gateway — caller authentication.
-
-Plain long-lived API keys, matching Tross's ``X-API-Key`` and Goedecke's
-recommendation that an API stay reachable by people who are not full-time
-engineers.
-"""
-
 import hashlib
 import logging
 
@@ -17,11 +10,6 @@ log = logging.getLogger(__name__)
 
 
 def _fingerprint(value: str | None) -> str:
-    """Identify a key in logs without recording it.
-
-    Failed attempts must be logged -- credential stuffing is only visible in the
-    pattern of rejections -- but the presented secret itself must not be.
-    """
     return hashlib.sha256(value.encode()).hexdigest()[:12] if value else "<absent>"
 
 

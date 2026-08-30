@@ -1,10 +1,3 @@
-"""fetch-profile handler.
-
-Path grammar, method and envelope all mirror Tross:
-``POST /api/integrations/{vendor}/{verb-noun}``, no version segment.
-A GET alias is offered because it is what people reach for first.
-"""
-
 from __future__ import annotations
 
 import logging
@@ -50,8 +43,6 @@ def _fetch(
 
     hit = cache.get(key)
     if hit is not None:
-        # fetchedAt reports when LinkedIn was actually called, not now -- a
-        # cached response should not claim to be fresher than it is.
         response.headers["X-Cache"] = "HIT"
         log.info("fetch-profile id=%s cache=hit request_id=%s", public_id, request_id)
         return FetchProfileResponse(

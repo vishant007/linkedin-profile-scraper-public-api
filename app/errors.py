@@ -1,10 +1,3 @@
-"""The error envelope.
-
-Tross documents no error format, so this one is ours. A stable machine-readable
-`code`, a human `message`, an explicit `retryable` flag that pairs with the
-rate-limit headers, and a `requestId` for support.
-"""
-
 from enum import StrEnum
 
 

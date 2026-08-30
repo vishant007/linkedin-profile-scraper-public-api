@@ -25,16 +25,11 @@ _DECO = "com.linkedin.voyager.dash.deco.identity.profile"
 FULL_PROFILE_DECORATION = f"{_DECO}.FullProfileWithEntities"
 TOP_CARD_DECORATION = f"{_DECO}.WebTopCardCore-6"
 
-# The version suffix increments over time. -63 was verified working on
-# 2026-08-27; neighbours are probed so a bump does not take the service down.
 DECORATION_VERSIONS: tuple[int, ...] = (63, 64, 65, 62, 66, 61, 67, 60)
 
 _ALLOWED_HOSTS = {"linkedin.com", "www.linkedin.com"}
-# Deliberately permissive: LinkedIn slugs are ASCII in practice, but wrongly
-# rejecting a valid profile is worse than passing junk through to a 404.
 _SLUG_RE = re.compile(r"^[\w\-.%]{2,120}$", re.UNICODE)
 
-# Remembered once resolved, so we probe at most once per process.
 _resolved_version: int | None = None
 
 
@@ -47,7 +42,6 @@ def public_identifier_from_url(value: str) -> str:
     if not raw:
         raise InvalidProfileUrl("profileUrl is required.")
 
-    # A bare slug, no scheme and no slashes.
     if "/" not in raw and "." not in raw:
         slug = raw
     else:
@@ -98,7 +92,6 @@ def fetch_full_profile(client: VoyagerClient, public_id: str) -> dict[str, Any]:
         try:
             payload = client.get(PROFILES_PATH, _params(public_id, decoration))
         except ProfileNotFound:
-            # Unambiguous: the member does not exist. Do not keep probing.
             raise
         except ApiError as exc:
             last = exc
@@ -119,10 +112,4 @@ def fetch_top_card(client: VoyagerClient, public_id: str) -> dict[str, Any]:
 
 
 def fetch_me(client: VoyagerClient) -> dict[str, Any]:
-    """Ask LinkedIn who the session belongs to.
-
-    The cheapest honest session check: ~2.8 kB against ~12 kB for a top card,
-    and it is semantically the right question -- "is this session still me?" --
-    without fetching a third party's profile to answer it.
-    """
     return client.get(ME_PATH)

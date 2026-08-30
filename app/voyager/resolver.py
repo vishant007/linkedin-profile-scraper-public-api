@@ -136,7 +136,7 @@ class ProfileGraph:
         target = self.follow(obj, key, section=section)
         if target is None:
             return []
-        if isinstance(target, list):  # already a list of objects
+        if isinstance(target, list):  
             return [o for o in target if o]
 
         urns = target.get("*elements") or target.get("elements") or []

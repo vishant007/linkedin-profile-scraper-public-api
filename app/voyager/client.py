@@ -28,8 +28,6 @@ BASE_URL = "https://www.linkedin.com"
 IMPERSONATE = "chrome"
 TIMEOUT_SECONDS = 20
 
-# The four headers that make a Voyager call work. Each buys exactly one thing;
-# see docs/approach.html for the observed failure mode when any is removed.
 BASE_HEADERS = {
     "accept": "application/vnd.linkedin.normalized+json+2.1",
     "x-restli-protocol-version": "2.0.0",
@@ -59,7 +57,7 @@ class VoyagerClient:
                 headers=self._headers(),
                 impersonate=IMPERSONATE,
                 timeout=TIMEOUT_SECONDS,
-                allow_redirects=False,  # a redirect IS the signal, not a detour
+                allow_redirects=False,  
             )
         except Exception as exc:  # network-level failure
             log.warning("voyager transport error path=%s err=%s", path, type(exc).__name__)
@@ -73,7 +71,6 @@ class VoyagerClient:
     def _interpret(response, path: str) -> dict[str, Any]:
         status = response.status_code
 
-        # A redirect to the login page means the backing session is dead.
         if status in (301, 302, 303, 307, 308):
             location = response.headers.get("location", "")
             if "login" in location or "authwall" in location or "checkpoint" in location:

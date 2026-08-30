@@ -10,14 +10,12 @@ class Settings(BaseSettings):
         env_file=".env", env_file_encoding="utf-8", extra="ignore"
     )
 
-    # Keys that callers of this API present in X-API-Key, comma separated.
     api_keys: str = ""
 
-    # The backend LinkedIn session. See .env.example for where to find these.
     linkedin_li_at: str = ""
     linkedin_jsessionid: str = ""
 
-    cache_ttl_seconds: int = 21600  # 6h — profiles change rarely; fetchedAt discloses age
+    cache_ttl_seconds: int = 21600  
     rate_limit_per_minute: int = 30
 
     @property

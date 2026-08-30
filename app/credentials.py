@@ -42,14 +42,7 @@ class LinkedInSession:
 
 
 def resolve() -> LinkedInSession:
-    """The session this deployment holds.
-
-    Supporting several sessions later means giving this function a caller
-    identity and looking it up -- and adding that identity to the cache key,
-    since LinkedIn discloses different amounts of a profile depending on the
-    viewing account. Both are changes to this module and to app/cache.py; the
-    request shape would also have to grow a field to carry the identity.
-    """
+    
     settings = get_settings()
 
     if not settings.linkedin_li_at or not settings.linkedin_jsessionid:

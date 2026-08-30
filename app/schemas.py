@@ -1,10 +1,3 @@
-"""The public contract.
-
-Shape follows Tross's: arguments wrapped in ``input``, and a
-response keyed by one domain noun (``profile``) with no generic ``data`` wrapper.
-Response fields are camelCase, matching every operation in their public docs.
-"""
-
 from datetime import datetime
 from enum import StrEnum
 
