@@ -7,9 +7,21 @@
   "auth": {
     "type": "apikey",
     "apikey": [
-      { "key": "key", "value": "X-API-Key", "type": "string" },
-      { "key": "value", "value": "{{apiKey}}", "type": "string" },
-      { "key": "in", "value": "header", "type": "string" }
+      {
+        "key": "key",
+        "value": "X-API-Key",
+        "type": "string"
+      },
+      {
+        "key": "value",
+        "value": "{{apiKey}}",
+        "type": "string"
+      },
+      {
+        "key": "in",
+        "value": "header",
+        "type": "string"
+      }
     ]
   },
   "variable": [
@@ -26,12 +38,6 @@
       "description": "PASTE THE KEY YOU WERE GIVEN HERE. Deliberately empty in the repository — the project keeps credentials out of version control, and an API key is a credential."
     },
     {
-      "key": "authId",
-      "value": "b3f1c2e4-8a90-4d21-9f77-2ce1d0a4b512",
-      "type": "string",
-      "description": "Opaque handle to the stored LinkedIn session. Not a secret — it is a reference, never a credential. Bound to the API key, so an arbitrary value returns 403 by design."
-    },
-    {
       "key": "profileUrl",
       "value": "https://www.linkedin.com/in/thevishantshah/",
       "type": "string",
@@ -42,10 +48,20 @@
     {
       "name": "1 · Health check",
       "request": {
-        "auth": { "type": "noauth" },
+        "auth": {
+          "type": "noauth"
+        },
         "method": "GET",
         "header": [],
-        "url": { "raw": "{{baseUrl}}/health", "host": ["{{baseUrl}}"], "path": ["health"] },
+        "url": {
+          "raw": "{{baseUrl}}/health",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "health"
+          ]
+        },
         "description": "Liveness, plus whether the backend LinkedIn session is still usable. Needs no API key.\n\n`sessionValid: false` means the backend credential expired — an operator task, not your problem. Always returns 200 because the service itself is up either way."
       },
       "event": [
@@ -68,16 +84,32 @@
       "name": "2 · Fetch profile  ← START HERE",
       "request": {
         "method": "POST",
-        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"input\": {\n    \"profileUrl\": \"{{profileUrl}}\"\n  },\n  \"auth_id\": \"{{authId}}\"\n}",
-          "options": { "raw": { "language": "json" } }
+          "raw": "{\n  \"input\": {\n    \"profileUrl\": \"{{profileUrl}}\"\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
         },
         "url": {
           "raw": "{{baseUrl}}/api/integrations/linkedin/fetch-profile",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "integrations", "linkedin", "fetch-profile"]
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "integrations",
+            "linkedin",
+            "fetch-profile"
+          ]
         },
         "description": "The main operation. Returns name, headline, location, about, experience, education, skills, certifications, languages and profile images **when available**.\n\nSections the backend session cannot see appear in `warnings` rather than failing the request."
       },
@@ -124,16 +156,32 @@
       "name": "3 · Fetch profile — selected sections only",
       "request": {
         "method": "POST",
-        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"input\": {\n    \"profileUrl\": \"{{profileUrl}}\",\n    \"sections\": [\"skills\", \"certifications\"]\n  },\n  \"auth_id\": \"{{authId}}\"\n}",
-          "options": { "raw": { "language": "json" } }
+          "raw": "{\n  \"input\": {\n    \"profileUrl\": \"{{profileUrl}}\",\n    \"sections\": [\"skills\", \"certifications\"]\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
         },
         "url": {
           "raw": "{{baseUrl}}/api/integrations/linkedin/fetch-profile",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "integrations", "linkedin", "fetch-profile"]
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "integrations",
+            "linkedin",
+            "fetch-profile"
+          ]
         },
         "description": "`sections` shapes the response. Valid values: experience, education, skills, certifications, languages.\n\nNote it does **not** reduce upstream cost — LinkedIn returns the whole profile in one call, which was measured rather than assumed."
       },
@@ -161,12 +209,21 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "{{baseUrl}}/api/integrations/linkedin/fetch-profile?profileUrl={{profileUrl}}&auth_id={{authId}}",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "integrations", "linkedin", "fetch-profile"],
+          "raw": "{{baseUrl}}/api/integrations/linkedin/fetch-profile?profileUrl={{profileUrl}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "integrations",
+            "linkedin",
+            "fetch-profile"
+          ],
           "query": [
-            { "key": "profileUrl", "value": "{{profileUrl}}" },
-            { "key": "auth_id", "value": "{{authId}}" }
+            {
+              "key": "profileUrl",
+              "value": "{{profileUrl}}"
+            }
           ]
         },
         "description": "Same contract via GET. POST is the primary method — it matches the platform convention being mirrored, and keeps profile URLs out of access logs, browser history and Referer headers. This alias exists because GET is what people reach for first."
@@ -189,18 +246,36 @@
     {
       "name": "5 · Error — no API key (401)",
       "request": {
-        "auth": { "type": "noauth" },
+        "auth": {
+          "type": "noauth"
+        },
         "method": "POST",
-        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"input\": { \"profileUrl\": \"{{profileUrl}}\" },\n  \"auth_id\": \"{{authId}}\"\n}",
-          "options": { "raw": { "language": "json" } }
+          "raw": "{\n  \"input\": { \"profileUrl\": \"{{profileUrl}}\" }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
         },
         "url": {
           "raw": "{{baseUrl}}/api/integrations/linkedin/fetch-profile",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "integrations", "linkedin", "fetch-profile"]
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "integrations",
+            "linkedin",
+            "fetch-profile"
+          ]
         },
         "description": "Every failure — including request validation — uses one error envelope, so callers only ever parse one shape."
       },
@@ -223,52 +298,35 @@
       ]
     },
     {
-      "name": "6 · Error — auth_id not yours (403)",
+      "name": "6 · Error — not a LinkedIn URL (400)",
       "request": {
         "method": "POST",
-        "header": [{ "key": "Content-Type", "value": "application/json" }],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"input\": { \"profileUrl\": \"{{profileUrl}}\" },\n  \"auth_id\": \"somebody-elses-handle\"\n}",
-          "options": { "raw": { "language": "json" } }
-        },
-        "url": {
-          "raw": "{{baseUrl}}/api/integrations/linkedin/fetch-profile",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "integrations", "linkedin", "fetch-profile"]
-        },
-        "description": "Authentication proves who is calling; it must not imply the handle they passed is theirs to use. Without this check the API would have a Broken Object Level Authorization flaw.\n\nUnknown handles and unauthorised handles return the **identical** error, so the response cannot be used to enumerate which handles exist."
-      },
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "type": "text/javascript",
-            "exec": [
-              "pm.test('403', () => pm.response.to.have.status(403));",
-              "pm.test('code is FORBIDDEN_AUTH_ID', () => pm.expect(pm.response.json().error.code).to.eql('FORBIDDEN_AUTH_ID'));",
-              "pm.test('does not reveal whether the handle exists', () => {",
-              "  pm.expect(pm.response.json().error.message).to.not.match(/not found|unknown|does not exist/i);",
-              "});"
-            ]
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
           }
-        }
-      ]
-    },
-    {
-      "name": "7 · Error — not a LinkedIn URL (400)",
-      "request": {
-        "method": "POST",
-        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"input\": { \"profileUrl\": \"https://linkedin.com.evil.example/in/someone\" },\n  \"auth_id\": \"{{authId}}\"\n}",
-          "options": { "raw": { "language": "json" } }
+          "raw": "{\n  \"input\": { \"profileUrl\": \"https://linkedin.com.evil.example/in/someone\" }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
         },
         "url": {
           "raw": "{{baseUrl}}/api/integrations/linkedin/fetch-profile",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "integrations", "linkedin", "fetch-profile"]
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "integrations",
+            "linkedin",
+            "fetch-profile"
+          ]
         },
         "description": "Input validation uses a host **allowlist**, so lookalike domains are rejected rather than filtered by pattern."
       },

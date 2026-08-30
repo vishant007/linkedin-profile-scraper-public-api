@@ -9,11 +9,12 @@ pattern that gets one flagged.
 It also degrades gracefully: if the session dies, profiles already fetched keep
 being served until their entries expire.
 
-The key includes `auth_id`. Today every handle resolves to the same session so
-it changes nothing, but LinkedIn discloses different amounts of a profile
-depending on the viewing account -- so the moment this became multi-tenant, a
-key without it would serve one caller's view to another. Cheaper to be correct
-now than to remember later.
+The key is the profile and the requested sections. That is safe because one
+session serves every caller, so every caller is entitled to see the same thing.
+It stops being safe the moment more than one credential exists: LinkedIn
+discloses different amounts of a profile depending on the viewing account, so a
+shared entry would serve one caller's view to another. Adding credentials means
+adding the caller identity to this key.
 """
 
 from __future__ import annotations
@@ -46,9 +47,9 @@ class ProfileCache:
         self._entries: OrderedDict[tuple, CachedProfile] = OrderedDict()
 
     @staticmethod
-    def key(auth_id: str, public_id: str, sections: Iterable[Section]) -> tuple:
+    def key(public_id: str, sections: Iterable[Section]) -> tuple:
         # Sections are part of the key because they change the response shape.
-        return (auth_id, public_id.lower(), tuple(sorted(s.value for s in sections)))
+        return (public_id.lower(), tuple(sorted(s.value for s in sections)))
 
     def get(self, key: tuple) -> CachedProfile | None:
         if self._ttl <= 0:
@@ -103,8 +104,3 @@ def get_cache() -> ProfileCache:
         _cache = ProfileCache(get_settings().cache_ttl_seconds)
     return _cache
 
-
-def reset_cache() -> None:
-    """Test hook."""
-    global _cache
-    _cache = None

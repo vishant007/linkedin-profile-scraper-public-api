@@ -32,7 +32,7 @@ time with LinkedIn -> Settings -> Sign out of all sessions.
 def main() -> int:
     print(INSTRUCTIONS)
     try:
-        session = resolve(auth_id="mint")
+        session = resolve()
     except ApiError as exc:
         print(f"NOT CONFIGURED: {exc.message}")
         return 1

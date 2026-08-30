@@ -16,6 +16,7 @@ from app.cache import get_cache
 from app.ratelimit import get_limiter
 from app.credentials import resolve as resolve_session
 from app.schemas import (
+    ErrorResponse,
     DEFAULT_SECTIONS,
     FetchProfileInput,
     FetchProfileRequest,
@@ -45,7 +46,7 @@ def _fetch(
     public_id = public_identifier_from_url(payload.input.profile_url)
 
     cache = get_cache()
-    key = cache.key(payload.auth_id, public_id, payload.input.sections)
+    key = cache.key(public_id, payload.input.sections)
 
     hit = cache.get(key)
     if hit is not None:
@@ -58,7 +59,7 @@ def _fetch(
         )
 
     response.headers["X-Cache"] = "MISS"
-    session = resolve_session(payload.auth_id, api_key)
+    session = resolve_session()
     client = VoyagerClient(session)
 
     log.info(
@@ -82,6 +83,13 @@ def _fetch(
     "/fetch-profile",
     response_model=FetchProfileResponse,
     response_model_exclude_none=True,
+    responses={
+        400: {"model": ErrorResponse, "description": "Not a LinkedIn profile URL"},
+        401: {"model": ErrorResponse, "description": "Missing or unrecognised X-API-Key"},
+        404: {"model": ErrorResponse, "description": "No such profile"},
+        429: {"model": ErrorResponse, "description": "Rate limit exceeded"},
+        502: {"model": ErrorResponse, "description": "Upstream unavailable or session expired"},
+    },
     summary="Fetch a LinkedIn profile as structured JSON",
     description=(
         "Returns name, headline, location, about, experience, education, skills, "
@@ -103,6 +111,13 @@ async def fetch_profile(
     "/fetch-profile",
     response_model=FetchProfileResponse,
     response_model_exclude_none=True,
+    responses={
+        400: {"model": ErrorResponse, "description": "Not a LinkedIn profile URL"},
+        401: {"model": ErrorResponse, "description": "Missing or unrecognised X-API-Key"},
+        404: {"model": ErrorResponse, "description": "No such profile"},
+        429: {"model": ErrorResponse, "description": "Rate limit exceeded"},
+        502: {"model": ErrorResponse, "description": "Upstream unavailable or session expired"},
+    },
     summary="Convenience GET alias",
     description=(
         "POST is the primary method: it matches Tross's convention and keeps "
@@ -114,7 +129,6 @@ async def fetch_profile_get(
     request: Request,
     response: Response,
     profile_url: str = Query(alias="profileUrl"),
-    auth_id: str = Query(alias="auth_id"),
     sections: list[Section] | None = Query(default=None),
     api_key: str = Depends(require_api_key),
 ) -> FetchProfileResponse:
@@ -122,7 +136,6 @@ async def fetch_profile_get(
         input=FetchProfileInput(
             profile_url=profile_url,
             sections=sections or list(DEFAULT_SECTIONS),
-        ),
-        auth_id=auth_id,
+        )
     )
     return _fetch(payload, getattr(request.state, "request_id", "req_unknown"), response, api_key)

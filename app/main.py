@@ -236,8 +236,7 @@ _INDEX_HTML = """<!doctype html>
     <pre>curl -X POST https://tross-assignment-ihro.onrender.com/api/integrations/linkedin/fetch-profile \\
   -H "X-API-Key: &lt;your key&gt;" \\
   -H "Content-Type: application/json" \\
-  -d '{"input":{"profileUrl":"https://www.linkedin.com/in/thevishantshah/"},
-       "auth_id":"b3f1c2e4-8a90-4d21-9f77-2ce1d0a4b512"}'</pre>
+  -d '{"input":{"profileUrl":"https://www.linkedin.com/in/thevishantshah/"}}'</pre>
   </div>
 
   <div class="card">

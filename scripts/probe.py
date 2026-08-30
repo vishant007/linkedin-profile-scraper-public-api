@@ -41,7 +41,7 @@ def main(argv: list[str]) -> int:
     save = "--save" in argv[1:]
 
     public_id = public_identifier_from_url(url)
-    client = VoyagerClient(resolve(auth_id="probe"))
+    client = VoyagerClient(resolve())
 
     try:
         payload = fetch_full_profile(client, public_id)

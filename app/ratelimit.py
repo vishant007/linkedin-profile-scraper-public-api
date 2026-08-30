@@ -106,8 +106,3 @@ def get_limiter() -> RateLimiter:
         _limiter = RateLimiter(get_settings().rate_limit_per_minute)
     return _limiter
 
-
-def reset_limiter() -> None:
-    """Test hook."""
-    global _limiter
-    _limiter = None

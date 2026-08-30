@@ -13,10 +13,6 @@ class Settings(BaseSettings):
     # Keys that callers of this API present in X-API-Key, comma separated.
     api_keys: str = ""
 
-    # The opaque handle callers reference. Bound to the API keys below, so a
-    # caller cannot use a handle that is not theirs -- see app/credentials.py.
-    auth_id: str = "b3f1c2e4-8a90-4d21-9f77-2ce1d0a4b512"
-
     # The backend LinkedIn session. See .env.example for where to find these.
     linkedin_li_at: str = ""
     linkedin_jsessionid: str = ""

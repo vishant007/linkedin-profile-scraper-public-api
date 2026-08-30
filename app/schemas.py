@@ -1,6 +1,6 @@
 """The public contract.
 
-Shape is deliberately Tross's: an ``{input, auth_id}`` request envelope, and a
+Shape follows Tross's: arguments wrapped in ``input``, and a
 response keyed by one domain noun (``profile``) with no generic ``data`` wrapper.
 Response fields are camelCase, matching every operation in their public docs.
 """
@@ -52,15 +52,17 @@ class FetchProfileInput(CamelModel):
 
 
 class FetchProfileRequest(BaseModel):
-    """Tross's envelope. Note ``auth_id`` keeps its snake_case name, as theirs does."""
+    """The request envelope.
+
+    Tross wraps every operation's arguments in ``input``, which this follows.
+    Their envelope also carries an ``auth_id`` naming which stored credential to
+    use; that has no analogue here, because this deployment holds exactly one
+    session and the API key already identifies the caller.
+    """
 
     model_config = ConfigDict(extra="ignore")
 
     input: FetchProfileInput
-    auth_id: str = Field(
-        description="Opaque handle to a stored LinkedIn session. Never a credential.",
-        examples=["b3f1c2e4-8a90-4d21-9f77-2ce1d0a4b512"],
-    )
 
 
 # --------------------------------------------------------------------------- #

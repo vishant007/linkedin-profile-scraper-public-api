@@ -15,8 +15,6 @@ services:
       # --- set these in the Render dashboard ---
       - key: API_KEYS
         sync: false
-      - key: AUTH_ID
-        sync: false
       - key: LINKEDIN_LI_AT
         sync: false
       - key: LINKEDIN_JSESSIONID
