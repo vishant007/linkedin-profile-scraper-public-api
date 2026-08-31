@@ -7,6 +7,7 @@ from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import HTMLResponse, JSONResponse
 
+from app.config import get_settings
 from app.errors import ApiError, ErrorCode
 from app.routes import router
 from app.schemas import ErrorBody, ErrorResponse
@@ -211,7 +212,7 @@ _INDEX_HTML = """<!doctype html>
   <div class="card">
     <h2>Try it</h2>
     <pre>curl -X POST https://tross-assignment-ihro.onrender.com/api/integrations/linkedin/fetch-profile \\
-  -H "X-API-Key: &lt;your key&gt;" \\
+  -H "X-API-Key: __API_KEY__" \\
   -H "Content-Type: application/json" \\
   -d '{"input":{"profileUrl":"https://www.linkedin.com/in/thevishantshah/"}}'</pre>
   </div>
@@ -227,10 +228,15 @@ _INDEX_HTML = """<!doctype html>
     </div>
   </div>
 
-  <footer>Request and response shapes deliberately mirror the conventions published at
-    <a href="https://app.ontross.com/docs">app.ontross.com/docs</a>.</footer>
+  <footer>One upstream call per profile. No browser, no HTML parsing.</footer>
 </div>
 """
+
+
+def _demo_key() -> str:
+    """First configured key, so the landing page shows a curl that actually runs."""
+    keys = [k.strip() for k in get_settings().api_keys.split(",") if k.strip()]
+    return keys[0] if keys else "&lt;your key&gt;"
 
 
 @app.get("/", include_in_schema=False)
@@ -246,7 +252,7 @@ async def index(request: Request):
     if "text/html" not in request.headers.get("accept", ""):
         return JSONResponse({"service": app.title, "version": app.version, "links": links})
 
-    return HTMLResponse(_INDEX_HTML)
+    return HTMLResponse(_INDEX_HTML.replace("__API_KEY__", _demo_key()))
 
 
 app.include_router(router)
